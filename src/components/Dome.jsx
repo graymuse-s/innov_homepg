@@ -18,14 +18,17 @@ export default function Dome({ position, onClick, visible = true }) {
 
 
             {/* Glass Dome (hemisphere) */}
-            <mesh onClick={onClick}>
+            <mesh onClick={(e) => {
+                e.stopPropagation(); // 👈 THIS IS THE FIX
+                onClick();
+            }}>
                 <sphereGeometry
-                    args={[15, 64, 64, 0, Math.PI * 2, 0, Math.PI / 2]}
+                    args={[25, 64, 64, 0, Math.PI * 2, 0, Math.PI / 2]}
                 />
                 <meshPhysicalMaterial
                     transmission={1}
                     thickness={0.6}
-                    roughness={0}
+                    roughness={0.1}
                     clearcoat={1}
                     clearcoatRoughness={0}
                     ior={1.45}

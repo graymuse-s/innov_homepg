@@ -1,5 +1,5 @@
 import { Suspense, useRef, useMemo } from "react"
-import { useGLTF } from "@react-three/drei"
+import { useGLTF, Stars, Sparkles } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import Dome from "./Dome"
@@ -10,18 +10,89 @@ function Model({ path, position, scale = 1, rotation = [0, 0, 0] }) {
     return <primitive object={clonedScene} position={position} scale={[scale, scale, scale]} rotation={rotation} />
 }
 
+function SceneBackground() {
+    return (
+        <>
+            {/* Sharp white background stars */}
+            <Stars
+                radius={300}
+                depth={60}
+                count={20000}
+                factor={1.5}
+                saturation={0}
+                fade
+                speed={1}
+            />
+
+            {/* The "Teal Nebula" effect using Sparkles */}
+            {/* This creates the dense, glowing teal clouds */}
+            <Sparkles
+                count={3000}
+                scale={[400, 100, 400]} // Spread them wide across the horizon
+                size={6}
+                speed={0.4}
+                opacity={0.8}
+                color="#008080" // Teal color
+            />
+
+            {/* Secondary glow for depth */}
+            <Sparkles
+                count={1000}
+                scale={[300, 50, 300]}
+                size={12}
+                speed={0.2}
+                color="#20b2aa" // Light Sea Green
+            />
+        </>
+    )
+}
+
 // Solid road segment for the Hexagon perimeter
 function HexPerimeterRoad({ angle, radius }) {
+    // 1. Calculate tree metadata once to prevent flickering/re-randomizing
+    const treeData = useMemo(() => {
+        const treeCount = 10; // Number of trees per road segment
+        const segmentLength = radius * 1.15;
+        return Array.from({ length: treeCount }).map((_, i) => ({
+            // Distribute trees along the Z-axis of the road strip
+            zPos: (i * (segmentLength / (treeCount - 1))) - (segmentLength / 2),
+            scale: 3 + Math.random() * 3,
+            rotation: Math.random() * Math.PI * 2
+        }));
+    }, [radius]);
+
     return (
         <group rotation={[0, angle, 0]}>
+            {/* MAIN ROAD STRIP */}
             <mesh position={[radius, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
                 <planeGeometry args={[6, radius * 1.15]} />
                 <meshStandardMaterial color="#1a1a1a" />
             </mesh>
-            {/* Dashed line */}
+
+            {/* 2. ADDING THE TREES ON BOTH SIDES */}
+            {treeData.map((tree, i) => (
+                <group key={`road-tree-${i}`} position={[radius, 0, tree.zPos]}>
+                    {/* Tree on the Outer Edge */}
+                    <Model
+                        path="/models/tree.glb"
+                        position={[5, 1, 0]}
+                        scale={tree.scale}
+                        rotation={[0, tree.rotation, 0]}
+                    />
+                    {/* Tree on the Inner Edge */}
+                    <Model
+                        path="/models/tree.glb"
+                        position={[-5, 1, 0]}
+                        scale={tree.scale * 0.8}
+                        rotation={[0, tree.rotation, 0]}
+                    />
+                </group>
+            ))}
+
+            {/* DASHED LINES */}
             {Array.from({ length: 8 }).map((_, i) => (
                 <mesh
-                    key={i}
+                    key={`dash-${i}`}
                     position={[radius + 0.1, 0.05, (i * (radius / 6)) - radius / 2]}
                     rotation={[-Math.PI / 2, 0, 0]}
                 >
@@ -30,8 +101,37 @@ function HexPerimeterRoad({ angle, radius }) {
                 </mesh>
             ))}
         </group>
-    )
+    );
 }
+
+function TreeCluster({ position, count = 20, spread = 15 }) {
+    // Generate random positions once so they don't jump every frame
+    const treePositions = useMemo(() => {
+        return Array.from({ length: count }).map(() => ({
+            x: (Math.random() - 0.5) * spread,
+            z: (Math.random() - 0.5) * spread,
+            s: 3 + Math.random() * 3, // Random scale for variety
+            r: Math.random() * Math.PI * 2 // Random rotation
+        }));
+    }, [count, spread]);
+
+    return (
+        <group position={position}>
+            {treePositions.map((p, i) => (
+                <Model
+                    key={i}
+                    path="/models/tree.glb"
+                    position={[p.x, 0, p.z]}
+                    scale={p.s}
+                    rotation={[0, p.r, 0]}
+                />
+            ))}
+        </group>
+    );
+}
+
+
+
 
 export default function City({ onSelectDome }) {
     const hexRadius = 110 // How far the domes are from center
@@ -44,14 +144,18 @@ export default function City({ onSelectDome }) {
     ]
 
     return (
-        <group>
-            <ambientLight intensity={0.8} />
-            <directionalLight position={[50, 50, 20]} intensity={1.5} />
+
+        <group onPointerMissed={() => onSelectDome(null)}>
+
+
+
+
 
             {/* 1. THE BIG FLOOR (Added this back) */}
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]}>
-                <circleGeometry args={[200, 6]} />
-                <meshStandardMaterial color="#051205" />
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]} onClick={() => onSelectDome(null)}>
+                {/* Use planeGeometry for a rectangle: [width, height] */}
+                <planeGeometry args={[500, 500]} />
+                <meshStandardMaterial color="#b7b552" roughness={0.8} metalness={0.2} />
             </mesh>
             {/* 1. THE BIG HEXAGONAL ROAD */}
             {[0, 1, 2, 3, 4, 5].map(i => (
@@ -65,66 +169,54 @@ export default function City({ onSelectDome }) {
                     return <Dome key={i} position={pos} onClick={() => onSelectDome(pos)} />
                 })}
 
-                {/* 3. SECTION: RESIDENTIAL (Corners 0 & 1) */}
-                {[0, 1].map(corner => (
-                    <group key={corner} position={getCornerPos(corner)}>
-                        {Array.from({ length: 6 }).map((_, i) => (
-                            <Model
-                                key={i}
-                                path="/models/building.glb"
-                                position={[Math.cos(i) * localRadius, 5, Math.sin(i) * localRadius]}
-                                scale={8}
-                            />
-                        ))}
-                    </group>
-                ))}
 
-                {/* 4. SECTION: HOSPITALS (Corner 2) */}
-                <group position={getCornerPos(2)}>
-                    <Model path="/models/hospital.glb" position={[localRadius + 8, 6, 0]} scale={25} />
-                    <Model path="/models/hospital2.glb" position={[-localRadius - 10, 8, 0]} scale={25} />
-                </group>
 
-                {/* 5. SECTION: EDUCATION (Corner 3) */}
-                <group position={getCornerPos(3)}>
-                    <Model path="/models/playground.glb" position={[0, 2, 0]} scale={22} />
-                    <Model path="/models/building.glb" position={[localRadius, 8, localRadius]} scale={15} />
-                </group>
 
-                {/* 6. SECTION: ENERGY - WIND (Corner 4) */}
-                <group position={getCornerPos(4)}>
-                    {[0, 1, 2].map(i => (
+
+                {/* --- DOME 5: THE RESOURCE & NATURE HUB --- */}
+                <group position={getCornerPos(5)}>
+                    {/* Main Resource Models around the dome */}
+                    <Model path="/models/farm.glb" position={[50, 5, 5]} scale={40} />
+                    <Model path="/models/farm.glb" position={[55, 5, -25]} scale={30} />
+                    <TreeCluster position={[25, 1, 0]} count={20} spread={12} />
+                    <TreeCluster position={[40, 1, -30]} count={20} spread={12} />
+                    <TreeCluster position={[35, 1, 25]} count={25} spread={12} />
+                    <TreeCluster position={[55, 1, 55]} count={20} spread={12} />
+                    <TreeCluster position={[-30, 1, -20]} count={30} spread={12} />
+                    <Model path="/models/lake.glb" position={[25, 0, -20]} scale={25} />
+                    <Model path="/models/windmills.glb" position={[10, 0, -25]} scale={6} />
+
+                    <Model path="/models/mountain.glb" position={[-100, 1, -80]} scale={150} rotation={[Math.PI / 8, 0, 0]} />
+                    <Model path="/models/mountain.glb" position={[-50, 1, -80]} scale={150} rotation={[Math.PI / 8, 0, 0]} />
+                    <Model path="/models/mountain.glb" position={[40, 1, -80]} scale={150} rotation={[Math.PI / 8, 0, 0]} />
+
+                    {/* Solar Panels tucked behind the dome */}
+                    <Model path="/models/solarpanels.glb" position={[-10, 1, -20]} scale={18} rotation={[Math.PI / 8, 0, 0]} />
+                    <Model path="/models/solarpanels.glb" position={[0, 1, -30]} scale={18} rotation={[Math.PI / 8, 0, 0]} />
+                    {/* 2 Photo Rooms integrated into the nature zone */}
+                    <Model path="/models/photoroom1.glb" position={[4, 2, 25]} scale={25} />
+                    <Model path="/models/photoroom4.glb" position={[-25, 2, 15]} scale={20} />
+
+                    {/* Dense Tree Fill Behind Dome 5 */}
+                    {Array.from({ length: 15 }).map((_, i) => (
                         <Model
-                            key={i}
-                            path="/models/windmills.glb"
-                            position={[Math.cos(i * 2) * localRadius, 0, Math.sin(i * 2) * localRadius]}
-                            scale={5}
+                            key={`tree-d5-${i}`}
+                            path="/models/tree.glb"
+                            position={[
+                                Math.cos(i) * 40,
+                                0,
+                                -30 - (Math.random() * 20) // Deep behind the dome
+                            ]}
+                            scale={4 + Math.random() * 3}
                         />
                     ))}
                 </group>
 
-                {/* 7. SECTION: FARM & SOLAR (Corner 5) */}
-                <group position={getCornerPos(5)}>
-                    <Model path="/models/solarpanels.glb" position={[0, 1, 0]} scale={18} />
-                    {Array.from({ length: 10 }).map((_, i) => (
-                        <Model key={i} path="/models/tree.glb" position={[Math.cos(i) * localRadius, 0, Math.sin(i) * localRadius]} scale={4} />
-                    ))}
-                </group>
 
-                {/* 8. CENTER SECTION: THE UNEVEN LAKE */}
-                <group position={[0, 0, 0]}>
-                    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
-                        <circleGeometry args={[12, 32]} />
-                        <meshStandardMaterial color="#003366" roughness={0.2} />
-                    </mesh>
-                    {/* Dense forest around the center dome */}
-                    {Array.from({ length: 12 }).map((_, i) => (
-                        <Model key={i} path="/models/tree.glb" position={[Math.cos(i) * 20, 0, Math.sin(i) * 20]} scale={6} />
-                    ))}
-                </group>
 
-                {/* 9. SOCIAL GOOD (RESERVED EMPTY SPACE) */}
-                {/* These spaces between the hex roads and center are now naturally empty */}
+
+
+
             </Suspense>
         </group>
     )
