@@ -28,7 +28,7 @@ export default function CameraWalkthrough({ target, active }) {
     const baseHeight = 25
     const endHeight = 45
 
-    const speed = 0.003
+    const speed = 0.007
     const posLerp = 0.085
     const lookLerp = 0.12
     const ease = (x) => x * x * (3 - 2 * x)
@@ -36,7 +36,7 @@ export default function CameraWalkthrough({ target, active }) {
     useFrame(() => {
         // 1. INITIAL FULL MAP ORBIT (Runs once on load)
         if (isInitial) {
-            t.current = Math.min(t.current + speed, 1);
+            t.current = Math.min(t.current + speed, 100);
             const e = ease(t.current);
             const angle = endPointAngle + (e * Math.PI * 2);
 

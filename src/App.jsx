@@ -14,10 +14,11 @@ export default function App() {
     <div style={{ width: "100vw", height: "100vh", background: "#000" }}>
       <Canvas camera={{ position: [0, 70, 230], fov: 45, near: 0.1, far: 5000 }}>
         {/* 1. Black Background + Neon Teal Fog */}
-        <color attach="background" args={['#02403c']} />
+        <color attach="background" args={['#003366']} />
 
         <ambientLight intensity={0.8} />
         <directionalLight position={[10, 20, 10]} intensity={1.5} color="#ffffff" castShadow />
+
 
         <Environment preset="night" />
 
@@ -27,10 +28,10 @@ export default function App() {
             radius={300}          // How far the stars are from the center
             depth={50}            // How thick the "shell" of stars is
             count={50000}         // Increase significantly for the dense look of img 2
-            factor={2}            // Keep factor low to keep stars tiny and sharp like img 2
+            factor={8}            // Keep factor low to keep stars tiny and sharp like img 2
             saturation={10}       // High saturation to bring out the teal/cyan tones
             fade={true}           // Helps create that misty, deep-space feel
-            speed={1.5}           // Subtle twinkling
+            speed={2.5}           // Subtle twinkling
           />
 
 
