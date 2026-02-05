@@ -1,5 +1,5 @@
 import { Suspense, useRef, useMemo } from "react"
-import { useGLTF, Stars, Sparkles } from "@react-three/drei"
+import { useGLTF, Stars, Sparkles, useTexture } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import Dome from "./Dome"
@@ -10,668 +10,31 @@ function Model({ path, position, scale = 1, rotation = [0, 0, 0] }) {
     return <primitive object={clonedScene} position={position} scale={[scale, scale, scale]} rotation={rotation} />
 }
 
-function SeeSaw({ position }) {
-    const { scene } = useGLTF("/models/seesaw.glb");
+function SkyLogoI({ position = [0, 140, -80], size = 700 }) {
+    const texture = useTexture("/images/logo.png");
+
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.generateMipmaps = false;
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.premultiplyAlpha = false;
 
     return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={10}
-                rotation={[0, Math.PI, 0]}
-                position={[-4, 1, 0]} // 👈 THIS IS THE FIX
+        <mesh position={position}>
+            <planeGeometry args={[size, size]} />
+            <meshBasicMaterial
+                map={texture}
+                transparent
+                opacity={0.6}
+                alphaTest={0.01}
+                depthWrite={false}
+                toneMapped={false}
+                blending={THREE.AdditiveBlending}
+                rotation={[-0.05, 0, 0]}
             />
-        </group>
+        </mesh>
     );
 }
-
-function Park_swing({ position }) {
-    const { scene } = useGLTF("/models/Swings.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={10}
-                rotation={[0, Math.PI, 0]}
-                position={[-4, 1, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Park_slide({ position }) {
-    const { scene } = useGLTF("/models/slide.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={10}
-                rotation={[0, Math.PI, 0]}
-                position={[-4, 1, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-function Park({ position }) {
-    const { scene } = useGLTF("/models/ground.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={40}
-                rotation={[0, Math.PI, 0]}
-                position={[-4, 0.9, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Student({ position }) {
-    const { scene } = useGLTF("/models/students.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={8}
-                rotation={[0, Math.PI / 2, 0]}
-                position={[0, 1.8, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Windmill({ position }) {
-    const { scene } = useGLTF("/models/windmill.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={20}
-                rotation={[0, -Math.PI / 2, 0]}
-                position={[0, 1.8, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function SolarPanels({ position }) {
-    const { scene } = useGLTF("/models/solarpanels.glb");
-
-    return (
-        <group position={position}>
-            {/* Move model DOWN so its base touches ground */}
-            <primitive
-                object={scene}
-                scale={8}
-                rotation={[0, Math.PI / 2, 0]}
-                position={[0, 2, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Bycycle({ position }) {
-    const { scene } = useGLTF("/models/bycycle.glb");
-
-    return (
-        <group position={position}>
-            {/* Move model DOWN so its base touches ground */}
-            <primitive
-                object={scene}
-                scale={12}
-                rotation={[0, Math.PI / 0.9, 0]}
-                position={[0, 2, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-function Boys({ position }) {
-    const { scene } = useGLTF("/models/boys.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={6}
-                rotation={[0, Math.PI / 2, 0]}
-                position={[-4, 1, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Bycycle1({ position }) {
-    const { scene } = useGLTF("/models/bycycle1.glb");
-
-    return (
-        <group position={position}>
-            {/* Move model DOWN so its base touches ground */}
-            <primitive
-                object={scene}
-                scale={12}
-                rotation={[0, Math.PI / 0.9, 0]}
-                position={[0, 2, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Bycycle2({ position }) {
-    const { scene } = useGLTF("/models/bycycle2.glb");
-
-    return (
-        <group position={position}>
-            {/* Move model DOWN so its base touches ground */}
-            <primitive
-                object={scene}
-                scale={12}
-                rotation={[0, Math.PI / 0.9, 0]}
-                position={[0, 2, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Bycycle3({ position }) {
-    const { scene } = useGLTF("/models/bycycle3.glb");
-
-    return (
-        <group position={position}>
-            {/* Move model DOWN so its base touches ground */}
-            <primitive
-                object={scene}
-                scale={12}
-                rotation={[0, Math.PI / 0.9, 0]}
-                position={[0, 2, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function CycleStand({ position }) {
-    const { scene } = useGLTF("/models/cycle_stand.glb");
-
-    return (
-        <group position={position}>
-            {/* Move model DOWN so its base touches ground */}
-            <primitive
-                object={scene}
-                scale={30}
-                rotation={[0, Math.PI / 6, 0]}
-                position={[0, 2, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Boundary({ position }) {
-    const { scene } = useGLTF("/models/school_boundary.glb");
-
-    return (
-        <group position={position}>
-            {/* Move model DOWN so its base touches ground */}
-            <primitive
-                object={scene}
-                scale={60}
-                rotation={[0, Math.PI / 6, 0]}
-                position={[0, 2, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function School1({ position }) {
-    const { scene } = useGLTF("/models/school1.glb");
-
-    return (
-        <group position={position}>
-            {/* Move model DOWN so its base touches ground */}
-            <primitive
-                object={scene}
-                scale={60}
-                rotation={[0, Math.PI / 5, 0]}
-                position={[0, 2, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Parent({ position }) {
-    const { scene } = useGLTF("/models/parent_child.glb");
-
-    return (
-        <group position={position}>
-            {/* Move model DOWN so its base touches ground */}
-            <primitive
-                object={scene}
-                scale={10}
-                rotation={[0, -0.6, 0]}
-                position={[0, 2, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Bush({ position }) {
-    const { scene } = useGLTF("/models/grass.glb");
-
-    return (
-        <group position={position}>
-            {/* Move model DOWN so its base touches ground */}
-            <primitive
-                object={scene}
-                scale={5}
-                rotation={[0, -0.6, 0]}
-                position={[0, 2, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Bush2({ position }) {
-    const { scene } = useGLTF("/models/grass2.glb");
-
-    return (
-        <group position={position}>
-            {/* Move model DOWN so its base touches ground */}
-            <primitive
-                object={scene}
-                scale={5}
-                rotation={[0, -0.6, 0]}
-                position={[0, 2, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Bush3({ position }) {
-    const { scene } = useGLTF("/models/grass3.glb");
-
-    return (
-        <group position={position}>
-            {/* Move model DOWN so its base touches ground */}
-            <primitive
-                object={scene}
-                scale={5}
-                rotation={[0, -0.6, 0]}
-                position={[0, 2, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Robo2({ position }) {
-    const { scene } = useGLTF("/models/robo2.glb");
-
-    return (
-        <group position={position}>
-            {/* Move model DOWN so its base touches ground */}
-            <primitive
-                object={scene}
-                scale={13}
-                rotation={[0, -0.6, 0]}
-                position={[0, 2, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Docs({ position }) {
-    const { scene } = useGLTF("/models/docs.glb");
-
-    return (
-        <group position={position}>
-            {/* Move model DOWN so its base touches ground */}
-            <primitive
-                object={scene}
-                scale={4}
-                rotation={[0, -Math.PI / 2, 0]}
-                position={[0, 2, 3]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Plus({ position }) {
-    const { scene } = useGLTF("/models/plus.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={10}
-                rotation={[0, 0, 0]}
-                position={[0, 1.8, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Helicopter({ position }) {
-    const { scene } = useGLTF("/models/helicopter.glb");
-
-    return (
-        <group position={position}>
-            {/* Move model DOWN so its base touches ground */}
-            <primitive
-                object={scene}
-                scale={30}
-                rotation={[-0.2, Math.PI / 6, 0.1]}
-                position={[0, 2, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Robo({ position }) {
-    const { scene } = useGLTF("/models/robo.glb");
-
-    return (
-        <group position={position}>
-            {/* Move model DOWN so its base touches ground */}
-            <primitive
-                object={scene}
-                scale={15}
-                rotation={[0, -0.6, 0]}
-                position={[0, 2, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Hospital({ position }) {
-    const { scene } = useGLTF("/models/hospitals.glb");
-
-    return (
-        <group position={position}>
-            {/* Move model DOWN so its base touches ground */}
-            <primitive
-                object={scene}
-                scale={48}
-                rotation={[0, Math.PI / 1.2, 0]}
-                position={[0, 2, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Hospital2({ position }) {
-    const { scene } = useGLTF("/models/hospital_2.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={40}
-                rotation={[0, -Math.PI / 2, 0]}
-                position={[0, 1.8, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Helipad({ position }) {
-    const { scene } = useGLTF("/models/helipad_def.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={30}
-                rotation={[0, Math.PI / 4, 0]}
-                position={[-4, 1, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Helicopter_Def({ position }) {
-    const { scene } = useGLTF("/models/helicopter_def.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={30}
-                rotation={[0, Math.PI / 4, 0]}
-                position={[-4, 1, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Def_Veh({ position }) {
-    const { scene } = useGLTF("/models/def_veh.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={20}
-                rotation={[0, Math.PI / 4, 0]}
-                position={[-4, 1, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Missiel({ position }) {
-    const { scene } = useGLTF("/models/missiel.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={40}
-                rotation={[0, Math.PI, 0]}
-                position={[-4, 1, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Scooty({ position }) {
-    const { scene } = useGLTF("/models/scooty.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={10}
-                rotation={[0, Math.PI / 5, 0]}
-                position={[-4, 1, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Bus({ position }) {
-    const { scene } = useGLTF("/models/bus.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={20}
-                rotation={[0, Math.PI / 1.2, 0]}
-                position={[-4, 0.9, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Car({ position }) {
-    const { scene } = useGLTF("/models/car.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={25}
-                rotation={[0, Math.PI / 1.2, 0]}
-                position={[-4, 1, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Water({ position }) {
-    const { scene } = useGLTF("/models/circle_water.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={100}
-                rotation={[0, Math.PI / 2, 0]}
-                position={[-4, 0.9, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Bike({ position }) {
-    const { scene } = useGLTF("/models/bike.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={20}
-                rotation={[0, Math.PI / 2, 0]}
-                position={[-4, 0.9, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Rikshaw({ position }) {
-    const { scene } = useGLTF("/models/rikshaw.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={15}
-                rotation={[0, Math.PI, 0]}
-                position={[-4, 1, 0]} // 👈 THIS IS THE FIX
-            />
-        </group>
-    );
-}
-
-function Base_Blue({ position }) {
-    const { scene } = useGLTF("/models/blue_base.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={65}
-                rotation={[0, Math.PI / 2, 0]}
-                position={[-4, 1, 0]}
-            />
-        </group>
-    );
-}
-
-function Base_Blue1({ position }) {
-    const { scene } = useGLTF("/models/blue_base1.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={55}
-                rotation={[0, Math.PI / 2, 0]}
-                position={[-4, 1, 0]}
-            />
-        </group>
-    );
-}
-
-function Base_Blue2({ position }) {
-    const { scene } = useGLTF("/models/blue_base2.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={55}
-                rotation={[0, Math.PI / 2, 0]}
-                position={[-4, 1, 0]}
-            />
-        </group>
-    );
-}
-
-function Base_Blue3({ position }) {
-    const { scene } = useGLTF("/models/blue_base3.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={55}
-                rotation={[0, Math.PI / 2, 0]}
-                position={[-4, 1, 0]}
-            />
-        </group>
-    );
-}
-
-function Base_Blue4({ position }) {
-    const { scene } = useGLTF("/models/blue_base4.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={55}
-                rotation={[0, Math.PI / 2, 0]}
-                position={[-4, 1, 0]}
-            />
-        </group>
-    );
-}
-
-function Base_Blue5({ position }) {
-    const { scene } = useGLTF("/models/blue_base5.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={55}
-                rotation={[0, Math.PI / 2, 0]}
-                position={[-4, 1, 0]}
-            />
-        </group>
-    );
-}
-
-function Base_Blue6({ position }) {
-    const { scene } = useGLTF("/models/blue_base6.glb");
-
-    return (
-        <group position={position}>
-            <primitive
-                object={scene}
-                scale={55}
-                rotation={[0, Math.PI / 2, 0]}
-                position={[-4, 1, 0]}
-            />
-        </group>
-    );
-}
-
-
-
 
 
 // Solid road segment for the Hexagon perimeter
@@ -815,7 +178,7 @@ export default function City({ onSelectDome }) {
             <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]} onClick={() => onSelectDome(null)}>
                 {/* Use planeGeometry for a rectangle: [width, height] */}
                 <planeGeometry args={[500, 500]} />
-                <meshStandardMaterial color="#393303" roughness={0.8} metalness={0.2} />
+                <meshStandardMaterial color="#0a2b02" roughness={0.8} metalness={0.2} />
             </mesh>
 
             <MountainBorder />
@@ -825,44 +188,64 @@ export default function City({ onSelectDome }) {
                 <HexPerimeterRoad key={i} angle={(i * Math.PI) / 3 + Math.PI / 6} radius={hexRadius - 8} />
             ))}
 
+            {/* --- Vehicles & Transport --- */}
+            <Model path="/models/bike.glb" position={[6, 4.9, 101]} scale={20} rotation={[0, Math.PI / 2, 0]} />
+            <Model path="/models/car.glb" position={[84, 5, 60]} scale={25} rotation={[0, Math.PI / 1.2, 0]} />
+            <Model path="/models/bus.glb" position={[-89, 4.9, -50]} scale={20} rotation={[0, Math.PI / 1.2, 0]} />
+            <Model path="/models/rikshaw.glb" position={[-9, 5, -107]} scale={15} rotation={[0, Math.PI, 0]} />
+            <Model path="/models/scooty.glb" position={[-109, 7, 40]} scale={15} rotation={[0, Math.PI / 5, 0]} />
 
-            <Base_Blue position={[113, 2, 0]} />
-            <Base_Blue1 position={[-105, 2, 0]} />
-            <Base_Blue2 position={[-50, 2, 95]} />
-            <Base_Blue3 position={[60, 2, -95]} />
-            <Base_Blue4 position={[60, 2, 95]} />
-            <Base_Blue5 position={[-52, 2, -95]} />
-            <Base_Blue6 position={[4, 2, 0]} />
-            <Bike position={[10, 4, 101]} />
-            <Car position={[88, 4, 60]} />
-            <Bus position={[-85, 4, -50]} />
-            <Rikshaw position={[-5, 4, -107]} />
+            {/* --- Defense Hub --- */}
+            <Model path="/models/missiel.glb" position={[-54, 21, -135]} scale={40} rotation={[0, Math.PI, 0]} />
+            <Model path="/models/def_veh.glb" position={[-89, 9, -130]} scale={20} rotation={[0, Math.PI / 4, 0]} />
+            <Model path="/models/helicopter_def.glb" position={[-109, 31, -100]} scale={30} rotation={[0, Math.PI / 4, 0]} />
+            <Model path="/models/helipad_def.glb" position={[-109, 6, -100]} scale={30} rotation={[0, Math.PI / 4, 0]} />
 
-            <Missiel position={[-50, 20, -135]} />
-            <Def_Veh position={[-85, 8, -130]} />
-            <Helicopter_Def position={[-105, 30, -100]} />
-            <Helipad position={[-105, 5, -100]} />
-            <Hospital position={[35, 10, 140]} />
-            <Robo position={[10, 5, 160]} />
-            <Helicopter position={[35, 30, 140]} />
-            <Docs position={[-70, 1.5, 70]} />
+            {/* --- Medical Hub --- */}
+            <Model path="/models/hospitals.glb" position={[35, 12, 140]} scale={48} rotation={[0, Math.PI / 1.2, 0]} />
+            <Model path="/models/hospital_2.glb" position={[110, 11.8, 105]} scale={40} rotation={[0, -Math.PI / 2, 0]} />
+            <Model path="/models/plus.glb" position={[100, 11.8, 120]} scale={10} rotation={[0, 0, 0]} />
+            <Model path="/models/ambulance.glb" position={[76, 6, 145]} scale={25} rotation={[0, Math.PI, 0]} />
+            <Model path="/models/helicopter.glb" position={[35, 32, 140]} scale={30} rotation={[-0.2, Math.PI / 6, 0.1]} />
+            <Model path="/models/docs.glb" position={[-70, 3.5, 73]} scale={4} rotation={[0, -Math.PI / 2, 0]} />
 
-            <Bush position={[112, 2, -30]} />
-            <Bush2 position={[110, 2, -30]} />
-            <Bush3 position={[108, 2, -31]} />
-            <Parent position={[100, 2, -31]} />
+            {/* --- School & Education Hub --- */}
+            <Model path="/models/school1.glb" position={[-150, 7, 70]} scale={45} rotation={[0, Math.PI / 5, 0]} />
+            <Model path="/models/school_boundary.glb" position={[-155, 7, 70]} scale={80} rotation={[0, -Math.PI / 1.2, 0]} />
+            <Model path="/models/cycle_stand.glb" position={[-160, 2, 105]} scale={30} rotation={[0, Math.PI / 6, 0]} />
+            <Model path="/models/students.glb" position={[-115, 9.8, 110]} scale={12} rotation={[0, Math.PI / 2, 0]} />
+            <Model path="/models/parent_child.glb" position={[100, 4, -31]} scale={10} rotation={[0, -0.6, 0]} />
 
-            <SolarPanels position={[10, 7, -131]} />
-            <Windmill position={[20, 10, -155]} />
-            <Student position={[15, 2, -105]} />
-            <Park position={[-15, 3, -75]} />
-            <Park_slide position={[-15, 5, -70]} />
-            <Park_swing position={[-10, 3, -80]} />
-            <SeeSaw position={[-20, 3, -80]} />
-            <Boys position={[-25, 3, -70]} />
-            <Hospital2 position={[110, 10, 105]} />
-            <Plus position={[100, 10, 120]} />
-            <Robo2 position={[90, 6, 120]} />
+            {/* --- Bicycles (Student Area) --- */}
+            <Model path="/models/bycycle.glb" position={[-145, 3.3, 102]} scale={15} rotation={[0, Math.PI / 0.9, 0]} />
+            <Model path="/models/bycycle1.glb" position={[-148, 3.3, 103]} scale={15} rotation={[0, Math.PI / 0.9, 0]} />
+            <Model path="/models/bycycle2.glb" position={[-152, 3.3, 104]} scale={15} rotation={[0, Math.PI / 0.9, 0]} />
+            <Model path="/models/bycycle3.glb" position={[-156, 3.3, 105]} scale={15} rotation={[0, Math.PI / 0.9, 0]} />
+
+            {/* --- Park & Recreation --- */}
+            <Model path="/models/ground.glb" position={[-64, 5.9, 150]} scale={60} rotation={[0, Math.PI, 0]} />
+            <Model path="/models/slide.glb" position={[-54, 11, 150]} scale={23} rotation={[0, Math.PI, 0]} />
+            <Model path="/models/Swings.glb" position={[-78, 8, 150]} scale={10} rotation={[0, Math.PI, 0]} />
+            <Model path="/models/seesaw.glb" position={[-64, 3.5, 133]} scale={10} rotation={[0, Math.PI, 0]} />
+            <Model path="/models/bench.glb" position={[-134, 6, 140]} scale={30} rotation={[0, Math.PI / 7, 0]} />
+            <Model path="/models/bench2.glb" position={[-124, 6, 160]} scale={30} rotation={[0, Math.PI / 7, 0]} />
+            <Model path="/models/boys.glb" position={[-74, 6, 165]} scale={10} rotation={[0, Math.PI / 2, 0]} />
+
+            {/* --- Energy & Robotics --- */}
+            <Model path="/models/solarpanels.glb" position={[10, 9, -131]} scale={8} rotation={[0, Math.PI / 2, 0]} />
+            <Model path="/models/windmill.glb" position={[20, 11.8, -155]} scale={20} rotation={[0, -Math.PI / 2, 0]} />
+            <Model path="/models/robo.glb" position={[10, 7, 160]} scale={15} rotation={[0, -0.6, 0]} />
+            <Model path="/models/robo2.glb" position={[90, 8, 120]} scale={13} rotation={[0, -0.6, 0]} />
+            <Model path="/models/bot.glb" position={[-120, 7, 75]} scale={17} rotation={[0, Math.PI / 5, 0]} />
+
+            {/* --- Nature & Environment --- */}
+            <Model path="/models/grass.glb" position={[112, 4, -30]} scale={5} rotation={[0, -0.6, 0]} />
+            <Model path="/models/grass2.glb" position={[110, 4, -30]} scale={5} rotation={[0, -0.6, 0]} />
+            <Model path="/models/grass3.glb" position={[108, 4, -31]} scale={5} rotation={[0, -0.6, 0]} />
+            <Model path="/models/circle_water.glb" position={[0, -1.1, 0]} scale={150} rotation={[0, Math.PI / 2, 0]} />
+
+            {/* --- UI/Logo --- */}
+            <SkyLogoI position={[0, -200, -2200]} size={90} />
 
 
             <Suspense fallback={null}>
@@ -884,6 +267,13 @@ export default function City({ onSelectDome }) {
                         <Dome
                             position={pos}
                             onClick={() => onSelectDome(pos)}
+                        />
+
+                        <Model
+                            path="/models/blue_base.glb"
+                            position={pos}           // 👈 Use the dome's position here
+                            scale={55}
+                            rotation={[0, Math.PI / 2, 0]}
                         />
                     </group>
                     );

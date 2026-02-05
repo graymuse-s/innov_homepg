@@ -34,8 +34,8 @@ export default function Dome({ position, onClick, visible = true }) {
                     ior={1.2}                // Lower IOR reduces the "mirror" glare effect
 
                     /* COLOR & GLOW */
-                    color="#0c0f11"          // Base blue
-                    emissive="#040404"       // Subtle blue glow so it doesn't look black in shadows
+                    color="#3a6989"          // Base blue
+                    emissive="#003366"       // Subtle blue glow so it doesn't look black in shadows
 
                     /* THE FIX FOR REFLECTIONS */
                     reflectivity={0}         // CRITICAL: Removes the "light bulb" reflections

@@ -14,7 +14,7 @@ export default function App() {
     <div style={{ width: "100vw", height: "100vh", background: "#000" }}>
       <Canvas camera={{ position: [0, 70, 230], fov: 45, near: 0.1, far: 5000 }}>
         {/* 1. Black Background + Neon Teal Fog */}
-        <color attach="background" args={['#003366']} />
+        <color attach="background" args={['#010407']} />
 
         <ambientLight intensity={0.8} />
         <directionalLight position={[10, 20, 10]} intensity={1.5} color="#ffffff" castShadow />
