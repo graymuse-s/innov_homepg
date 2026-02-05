@@ -55,7 +55,7 @@ function HexPerimeterRoad({ angle, radius }) {
         <group rotation={[0, angle, 0]}>
             {/* MAIN ROAD STRIP */}
             <mesh position={[radius, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-                <planeGeometry args={[6, radius * 1.15]} />
+                <planeGeometry args={[12, radius * 1.15]} />
                 <meshStandardMaterial color="#1a1a1a" />
             </mesh>
 
@@ -65,15 +65,15 @@ function HexPerimeterRoad({ angle, radius }) {
                     {/* Tree on the Outer Edge */}
                     <Model
                         path="/models/tree.glb"
-                        position={[5, 1, 0]}
-                        scale={tree.scale}
+                        position={[6, 1, 0]}
+                        scale={7}
                         rotation={[0, tree.rotation, 0]}
                     />
                     {/* Tree on the Inner Edge */}
                     <Model
                         path="/models/tree.glb"
-                        position={[-5, 1, 0]}
-                        scale={tree.scale * 0.8}
+                        position={[-6, 1, 0]}
+                        scale={7}
                         rotation={[0, tree.rotation, 0]}
                     />
                 </group>
@@ -134,7 +134,7 @@ function MountainBorder() {
 
             {/* South Edge */}
             <Model path={mountainPath} position={[150, 24, 245]} scale={200} rotation={[0, Math.PI, 0]} />
-            <Model path={mountainPath} position={[-35, 22, 245]} scale={200} rotation={[0, Math.PI, 0]} />
+            <Model path={mountainPath} position={[-35, 22, 255]} scale={200} rotation={[0, Math.PI, 0]} />
 
 
             <Model path={mountainPath} position={[-190, 18, 220]} scale={200} rotation={[0, Math.PI, 0]} />
@@ -189,11 +189,11 @@ export default function City({ onSelectDome }) {
             ))}
 
             {/* --- Vehicles & Transport --- */}
-            <Model path="/models/bike.glb" position={[6, 4.9, 101]} scale={20} rotation={[0, Math.PI / 2, 0]} />
-            <Model path="/models/car.glb" position={[84, 5, 60]} scale={25} rotation={[0, Math.PI / 1.2, 0]} />
-            <Model path="/models/bus.glb" position={[-89, 4.9, -50]} scale={20} rotation={[0, Math.PI / 1.2, 0]} />
-            <Model path="/models/rikshaw.glb" position={[-9, 5, -107]} scale={15} rotation={[0, Math.PI, 0]} />
-            <Model path="/models/scooty.glb" position={[-109, 7, 40]} scale={15} rotation={[0, Math.PI / 5, 0]} />
+            <Model path="/models/bike.glb" position={[6, 4, 101]} scale={10} rotation={[0, Math.PI / 2, 0]} />
+            <Model path="/models/car.glb" position={[84, 4, 60]} scale={15} rotation={[0, Math.PI / 1.2, 0]} />
+            <Model path="/models/bus.glb" position={[-89, 4, -50]} scale={15} rotation={[0, Math.PI / 1.2, 0]} />
+            <Model path="/models/rikshaw.glb" position={[-9, 4, -107]} scale={12} rotation={[0, Math.PI, 0]} />
+            <Model path="/models/scooty.glb" position={[-109, 4, 40]} scale={8} rotation={[0, Math.PI / 5, 0]} />
 
             {/* --- Defense Hub --- */}
             <Model path="/models/missiel.glb" position={[-54, 21, -135]} scale={40} rotation={[0, Math.PI, 0]} />
@@ -202,41 +202,41 @@ export default function City({ onSelectDome }) {
             <Model path="/models/helipad_def.glb" position={[-109, 6, -100]} scale={30} rotation={[0, Math.PI / 4, 0]} />
 
             {/* --- Medical Hub --- */}
-            <Model path="/models/hospitals.glb" position={[35, 12, 140]} scale={48} rotation={[0, Math.PI / 1.2, 0]} />
-            <Model path="/models/hospital_2.glb" position={[110, 11.8, 105]} scale={40} rotation={[0, -Math.PI / 2, 0]} />
-            <Model path="/models/plus.glb" position={[100, 11.8, 120]} scale={10} rotation={[0, 0, 0]} />
-            <Model path="/models/ambulance.glb" position={[76, 6, 145]} scale={25} rotation={[0, Math.PI, 0]} />
-            <Model path="/models/helicopter.glb" position={[35, 32, 140]} scale={30} rotation={[-0.2, Math.PI / 6, 0.1]} />
+            <Model path="/models/hospitals.glb" position={[35, 12, 140]} scale={30} rotation={[0, Math.PI / 1.2, 0]} />
+            <Model path="/models/hospital_2.glb" position={[100, 6, 120]} scale={20} rotation={[0, -Math.PI / 2, 0]} />
+            <Model path="/models/plus.glb" position={[100, 13, 120]} scale={5} rotation={[0, 0, 0]} />
+            <Model path="/models/ambulance.glb" position={[76, 6, 145]} scale={15} rotation={[0, Math.PI, 0]} />
+            <Model path="/models/helicopter.glb" position={[35, 28, 140]} scale={20} rotation={[-0.2, Math.PI / 6, 0.1]} />
             <Model path="/models/docs.glb" position={[-70, 3.5, 73]} scale={4} rotation={[0, -Math.PI / 2, 0]} />
 
             {/* --- School & Education Hub --- */}
-            <Model path="/models/school1.glb" position={[-150, 7, 70]} scale={45} rotation={[0, Math.PI / 5, 0]} />
-            <Model path="/models/school_boundary.glb" position={[-155, 7, 70]} scale={80} rotation={[0, -Math.PI / 1.2, 0]} />
-            <Model path="/models/cycle_stand.glb" position={[-160, 2, 105]} scale={30} rotation={[0, Math.PI / 6, 0]} />
-            <Model path="/models/students.glb" position={[-115, 9.8, 110]} scale={12} rotation={[0, Math.PI / 2, 0]} />
+            <Model path="/models/school1.glb" position={[-115, 7, 90]} scale={35} rotation={[0, Math.PI / 6, 0]} />
+            <Model path="/models/school_boundary.glb" position={[-115, 7, 90]} scale={60} rotation={[0, -Math.PI / 1.2, 0]} />
+            <Model path="/models/cycle_stand.glb" position={[-115, 7, 116]} scale={20} rotation={[0, Math.PI / 6, 0]} />
+            <Model path="/models/students.glb" position={[-95, 9.8, 115]} scale={10} rotation={[0, Math.PI / 3, 0]} />
             <Model path="/models/parent_child.glb" position={[100, 4, -31]} scale={10} rotation={[0, -0.6, 0]} />
 
             {/* --- Bicycles (Student Area) --- */}
-            <Model path="/models/bycycle.glb" position={[-145, 3.3, 102]} scale={15} rotation={[0, Math.PI / 0.9, 0]} />
-            <Model path="/models/bycycle1.glb" position={[-148, 3.3, 103]} scale={15} rotation={[0, Math.PI / 0.9, 0]} />
-            <Model path="/models/bycycle2.glb" position={[-152, 3.3, 104]} scale={15} rotation={[0, Math.PI / 0.9, 0]} />
-            <Model path="/models/bycycle3.glb" position={[-156, 3.3, 105]} scale={15} rotation={[0, Math.PI / 0.9, 0]} />
+            <Model path="/models/bycycle.glb" position={[-118, 7, 120]} scale={10} rotation={[0, Math.PI / 0.9, 0]} />
+            <Model path="/models/bycycle1.glb" position={[-115, 7, 118]} scale={10} rotation={[0, Math.PI / 0.9, 0]} />
+            <Model path="/models/bycycle2.glb" position={[-112, 7, 115]} scale={10} rotation={[0, Math.PI / 0.9, 0]} />
+            <Model path="/models/bycycle3.glb" position={[-110, 7, 114]} scale={10} rotation={[0, Math.PI / 0.9, 0]} />
 
             {/* --- Park & Recreation --- */}
-            <Model path="/models/ground.glb" position={[-64, 5.9, 150]} scale={60} rotation={[0, Math.PI, 0]} />
-            <Model path="/models/slide.glb" position={[-54, 11, 150]} scale={23} rotation={[0, Math.PI, 0]} />
-            <Model path="/models/Swings.glb" position={[-78, 8, 150]} scale={10} rotation={[0, Math.PI, 0]} />
-            <Model path="/models/seesaw.glb" position={[-64, 3.5, 133]} scale={10} rotation={[0, Math.PI, 0]} />
-            <Model path="/models/bench.glb" position={[-134, 6, 140]} scale={30} rotation={[0, Math.PI / 7, 0]} />
-            <Model path="/models/bench2.glb" position={[-124, 6, 160]} scale={30} rotation={[0, Math.PI / 7, 0]} />
-            <Model path="/models/boys.glb" position={[-74, 6, 165]} scale={10} rotation={[0, Math.PI / 2, 0]} />
+            <Model path="/models/ground.glb" position={[-64, 5.9, 150]} scale={43} rotation={[0, Math.PI, 0]} />
+            <Model path="/models/slide.glb" position={[-54, 11, 150]} scale={15} rotation={[0, Math.PI, 0]} />
+            <Model path="/models/Swings.glb" position={[-70, 6, 150]} scale={8} rotation={[0, Math.PI, 0]} />
+            <Model path="/models/seesaw.glb" position={[-66, 3.5, 137]} scale={8} rotation={[0, Math.PI, 0]} />
+            <Model path="/models/bench.glb" position={[-110, 6, 140]} scale={20} rotation={[0, Math.PI / 7, 0]} />
+            <Model path="/models/bench2.glb" position={[-105, 6, 150]} scale={20} rotation={[0, Math.PI / 7, 0]} />
+            <Model path="/models/boys.glb" position={[-65, 4, 165]} scale={8} rotation={[0, Math.PI / 2, 0]} />
 
             {/* --- Energy & Robotics --- */}
             <Model path="/models/solarpanels.glb" position={[10, 9, -131]} scale={8} rotation={[0, Math.PI / 2, 0]} />
             <Model path="/models/windmill.glb" position={[20, 11.8, -155]} scale={20} rotation={[0, -Math.PI / 2, 0]} />
-            <Model path="/models/robo.glb" position={[10, 7, 160]} scale={15} rotation={[0, -0.6, 0]} />
-            <Model path="/models/robo2.glb" position={[90, 8, 120]} scale={13} rotation={[0, -0.6, 0]} />
-            <Model path="/models/bot.glb" position={[-120, 7, 75]} scale={17} rotation={[0, Math.PI / 5, 0]} />
+            <Model path="/models/robo.glb" position={[30, 9, 160]} scale={8} rotation={[0, -0.6, 0]} />
+            <Model path="/models/robo2.glb" position={[87, 3, 120]} scale={8} rotation={[0, -0.6, 0]} />
+            <Model path="/models/bot.glb" position={[-90, 7, 100]} scale={10} rotation={[0, Math.PI / 5, 0]} />
 
             {/* --- Nature & Environment --- */}
             <Model path="/models/grass.glb" position={[112, 4, -30]} scale={5} rotation={[0, -0.6, 0]} />
@@ -272,7 +272,7 @@ export default function City({ onSelectDome }) {
                         <Model
                             path="/models/blue_base.glb"
                             position={pos}           // 👈 Use the dome's position here
-                            scale={55}
+                            scale={65}
                             rotation={[0, Math.PI / 2, 0]}
                         />
                     </group>
@@ -284,40 +284,45 @@ export default function City({ onSelectDome }) {
                 <group position={getCornerPos(3)}>
 
                     {/* 1. TWO FARMHOUSES */}
-                    <Model path="/models/farmhouse.glb" position={[30, 2, 40]} scale={20} rotation={[0, 0, 0]} />
-                    <Model path="/models/farmhouse.glb" position={[-5, 2, -40]} scale={20} rotation={[0, Math.PI, 0]} />
+                    <Model path="/models/farmhouse.glb" position={[34, 2, 40]} scale={25} rotation={[0, Math.PI / 4, 0]} />
+                    <Model path="/models/farmhouse.glb" position={[-8, 2, -50]} scale={35} rotation={[0, Math.PI, 0]} />
+
+                    <Model path="/models/Cabin.glb" position={[-70, -4, -70]} scale={15} rotation={[0, 0, 0]} />
+
+                    <Model path="/models/sheep.glb" position={[-30, 0, -70]} scale={5} rotation={[0, 0, 0]} />
+                    <Model path="/models/sheep.glb" position={[-50, 0, -70]} scale={5} rotation={[0, Math.PI, 0]} />
+
+                    <Model path="/models/goat.glb" position={[-80, 2, 30]} scale={3} rotation={[0, - Math.PI / 6, 0]} />
+                    <Model path="/models/goat.glb" position={[-80, 2, 50]} scale={3} rotation={[0, Math.PI, 0]} />
+                    <Model path="/models/goat.glb" position={[-80, 2, 10]} scale={3} rotation={[0, Math.PI / 6, 0]} />
 
                     {/* 2. TWO FARMS (Fields) */}
-                    <Model path="/models/crops.glb" position={[-40, 4, -25]} scale={35} rotation={[0, Math.PI, 0]} />
-                    <Model path="/models/crops.glb" position={[-45, 4, 10]} scale={35} rotation={[0, Math.PI, 0]} />
+                    <Model path="/models/crops.glb" position={[-40, 4, -40]} scale={35} rotation={[0, Math.PI, 0]} />
+                    <Model path="/models/crops.glb" position={[-50, 4, 20]} scale={35} rotation={[0, Math.PI, 0]} />
 
                     {/* 3. COWS (6 Units) */}
-                    <Model path="/models/Cow.glb" position={[20, 1, -30]} scale={10} rotation={[0, 0.5, 0]} />
-                    <Model path="/models/Cow.glb" position={[25, 1, -32]} scale={10} rotation={[0, 1.2, 0]} />
-                    <Model path="/models/Cow.glb" position={[30, 1, -28]} scale={10} rotation={[0, -0.8, 0]} />
-                    <Model path="/models/Cow.glb" position={[22, 1, -38]} scale={10} rotation={[0, 2.5, 0]} />
-                    <Model path="/models/Cow.glb" position={[28, 1, -35]} scale={10} rotation={[0, 0, 0]} />
-                    <Model path="/models/Cow.glb" position={[35, 1, -33]} scale={10} rotation={[0, 3.1, 0]} />
+                    <Model path="/models/Cow.glb" position={[20, 1, -30]} scale={12} rotation={[0, 0.5, 0]} />
+                    <Model path="/models/Cow.glb" position={[25, 1, -32]} scale={12} rotation={[0, 1.2, 0]} />
+                    <Model path="/models/Cow.glb" position={[30, 1, -28]} scale={12} rotation={[0, -0.8, 0]} />
+                    <Model path="/models/Cow.glb" position={[22, 1, -38]} scale={12} rotation={[0, 2.5, 0]} />
+                    <Model path="/models/Cow.glb" position={[28, 1, -35]} scale={12} rotation={[0, 0, 0]} />
+                    <Model path="/models/Cow.glb" position={[35, 1, -33]} scale={12} rotation={[0, 3.1, 0]} />
 
                     {/* 4. HORSES (4 Units) */}
-                    <Model path="/models/Horse.glb" position={[-30, 1, 40]} scale={10} rotation={[0, 1.5, 0]} />
-                    <Model path="/models/Horse.glb" position={[-35, 1, 25]} scale={10} rotation={[0, -1.0, 0]} />
-                    <Model path="/models/Horse.glb" position={[-28, 1, 30]} scale={10} rotation={[0, 0.2, 0]} />
-                    <Model path="/models/Horse.glb" position={[-32, 1, 35]} scale={10} rotation={[0, 2.1, 0]} />
+                    <Model path="/models/Horse.glb" position={[-30, -0.5, 40]} scale={12} rotation={[0, 1.5, 0]} />
+                    <Model path="/models/Horse.glb" position={[-25, -0.5, 25]} scale={12} rotation={[0, -1.0, 0]} />
+                    <Model path="/models/Horse.glb" position={[-14, -0.5, 35]} scale={12} rotation={[0, 0.2, 0]} />
+                    <Model path="/models/Horse.glb" position={[-29, -.5, 35]} scale={12} rotation={[0, 2.1, 0]} />
 
                     {/* 5. CHICKENS (12 Units) - Clustered near Farmhouse 1 */}
-                    <Model path="/models/chicken.glb" position={[30, 0.5, 20]} scale={5} />
-                    <Model path="/models/chicken.glb" position={[32, 0.5, 21]} scale={5} />
-                    <Model path="/models/chicken.glb" position={[31, 0.5, 19]} scale={5} />
-                    <Model path="/models/chicken.glb" position={[34, 0.5, 22]} scale={5} />
-                    <Model path="/models/chicken.glb" position={[29, 0.5, 23]} scale={5} />
-                    <Model path="/models/chicken.glb" position={[33, 0.5, 18]} scale={5} />
-                    <Model path="/models/chicken.glb" position={[35, 0.5, 20]} scale={5} />
-                    <Model path="/models/chicken.glb" position={[31, 0.5, 25]} scale={5} />
-                    <Model path="/models/chicken.glb" position={[36, 0.5, 24]} scale={5} />
-                    <Model path="/models/chicken.glb" position={[28, 0.5, 21]} scale={5} />
-                    <Model path="/models/chicken.glb" position={[30, 0.5, 17]} scale={5} />
-                    <Model path="/models/chicken.glb" position={[33, 0.5, 26]} scale={5} />
+                    <Model path="/models/chicken.glb" position={[30, 0.5, 20]} scale={4} />
+                    <Model path="/models/chicken.glb" position={[32, 0.5, 21]} scale={4} />
+                    <Model path="/models/chicken.glb" position={[31, 0.5, 19]} scale={4} />
+                    <Model path="/models/chicken.glb" position={[34, 0.5, 22]} scale={4} />
+                    <Model path="/models/chicken.glb" position={[29, 0.5, 23]} scale={4} />
+                    <Model path="/models/chicken.glb" position={[33, 0.5, 18]} scale={6} />
+                    <Model path="/models/chicken.glb" position={[35, 0.5, 20]} scale={4} />
+
 
                     {/* 6. TREES (Fixed Positions) */}
                     <Model path="/models/tree.glb" position={[50, 0, -50]} scale={8} />
@@ -356,6 +361,9 @@ export default function City({ onSelectDome }) {
                     <Model path="/models/photoroom1.glb" position={[4, 2, 45]} scale={25} />
                     <Model path="/models/photoroom4.glb" position={[-25, 2, 35]} scale={20} />
 
+
+
+
                     {/* Dense Tree Fill Behind Dome 5 */}
                     {Array.from({ length: 15 }).map((_, i) => (
                         <Model
@@ -371,7 +379,29 @@ export default function City({ onSelectDome }) {
                     ))}
                 </group>
 
+                {/* residential area */}
+                <group position={getCornerPos(0)}>
 
+                    <Model path="/models/building.glb" position={[55, 5, 5]} scale={25} />
+                    <Model path="/models/building.glb" position={[55, 5, 25]} scale={25} />
+                    <Model path="/models/building.glb" position={[35, 6, 45]} scale={25} />
+                    <Model path="/models/resbuilding.glb" position={[60, 12, -25]} scale={28} />
+
+
+
+                    <Model path="/models/resbuilding.glb" position={[36, 8, -30]} scale={16} />
+                    <Model path="/models/resbuilding.glb" position={[20, 8, -35]} scale={16} />
+                    <TreeCluster position={[20, 1, 10]} count={10} spread={11} />
+
+
+                    {/* Solar Panels tucked behind the dome */}
+                    <Model path="/models/AIboard.glb" position={[-10, 3, -50]} scale={18} rotation={[0, -Math.PI / 6, 0]} />
+                    <Model path="/models/dustbin.glb" position={[0, 1, -40]} scale={10} rotation={[Math.PI / 8, 0, 0]} />
+                    {/* 2 Photo Rooms integrated into the nature zone */}
+                    <Model path="/models/solarcar.glb" position={[4, 5, 50]} scale={25} rotation={[0, -Math.PI / 2, 0]} />
+                    <Model path="/models/solarcar.glb" position={[-30, 5, 40]} scale={20} rotation={[0, Math.PI / 2, 0]} />
+
+                </group>
 
 
 
