@@ -6,7 +6,7 @@ import { OrbitControls, Environment, Stars, useProgress } from "@react-three/dre
 import { EffectComposer, Bloom } from "@react-three/postprocessing"
 
 // 1. NATIVE LOADER COMPONENT (Pure HTML)
-function FullScreenLoader() {
+/*function FullScreenLoader() {
   const { progress } = useProgress()
   return (
     <div style={{
@@ -21,18 +21,18 @@ function FullScreenLoader() {
       <p>{progress.toFixed(0)}% Initializing Systems...</p>
     </div>
   )
-}
+}*/
 
 export default function App() {
   const [selectedPos, setSelectedPos] = useState(null)
-  const { progress } = useProgress()
-  const isReady = progress === 100
+  /* const { progress } = useProgress()
+   const isReady = progress === 100*/
 
   return (
     <div style={{ width: "100vw", height: "100vh", background: "#000", position: 'relative' }}>
 
       {/* 2. SHOW LOADER ONLY UNTIL READY */}
-      {!isReady && <FullScreenLoader />}
+      {/*{!isReady && <FullScreenLoader />}*/}
 
       <Canvas camera={{ position: [0, 70, 230], fov: 45, near: 0.1, far: 5000 }}>
         <color attach="background" args={['#010407']} />
@@ -42,7 +42,7 @@ export default function App() {
 
         {/* 3. ONLY SHOW CITY ONCE READY */}
         <Suspense fallback={null}>
-          <group visible={isReady}>
+          <group>
             <Stars radius={300} depth={50} count={50000} factor={8} saturation={10} fade={true} speed={2.5} />
 
             <EffectComposer>
