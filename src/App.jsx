@@ -1,62 +1,82 @@
 import { Canvas } from "@react-three/fiber"
 import { useState, Suspense } from "react"
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import City from "./components/City"
 import CameraWalkthrough from "./components/CameraWalkthrough"
-import { OrbitControls, Environment, Stars, useProgress } from "@react-three/drei"
+import { OrbitControls, Environment, Stars } from "@react-three/drei"
 import { EffectComposer, Bloom } from "@react-three/postprocessing"
 
-// 1. NATIVE LOADER COMPONENT (Pure HTML)
-/*function FullScreenLoader() {
-  const { progress } = useProgress()
-  return (
-    <div style={{
-      position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh',
-      background: 'black', display: 'flex', flexDirection: 'column',
-      justifyContent: 'center', alignItems: 'center', zIndex: 100, color: 'white'
-    }}>
-      <h2 style={{ letterSpacing: '5px' }}>CITY OF THE FUTURE</h2>
-      <div style={{ width: '250px', height: '2px', background: '#222', margin: '20px 0' }}>
-        <div style={{ width: `${progress}%`, height: '100%', background: '#066b84', boxShadow: '0 0 10px #066b84' }} />
-      </div>
-      <p>{progress.toFixed(0)}% Initializing Systems...</p>
-    </div>
-  )
-}*/
+// A simple placeholder for your sub-pages
+const PagePlaceholder = ({ name }) => (
+  <div style={{
+    color: 'white', background: '#000', height: '100vh',
+    display: 'flex', justifyContent: 'center', alignItems: 'center',
+    fontSize: '2rem', fontFamily: 'sans-serif'
+  }}>
+    {name.toUpperCase()} PAGE COMING SOON...
+    <button
+      onClick={() => window.location.href = "/"}
+      style={{ marginLeft: '20px', padding: '10px', cursor: 'pointer' }}
+    >
+      BACK TO CITY
+    </button>
+  </div>
+);
 
 export default function App() {
   const [selectedPos, setSelectedPos] = useState(null)
-  /* const { progress } = useProgress()
-   const isReady = progress === 100*/
 
   return (
-    <div style={{ width: "100vw", height: "100vh", background: "#000", position: 'relative' }}>
+    <Router>
+      <div style={{ width: "100vw", height: "100vh", background: "#000", position: 'relative' }}>
 
-      {/* 2. SHOW LOADER ONLY UNTIL READY */}
-      {/*{!isReady && <FullScreenLoader />}*/}
+        <Routes>
+          {/* MAIN 3D CITY ROUTE */}
+          <Route path="/" element={
+            <Canvas camera={{ position: [0, 70, 230], fov: 45, near: 0.1, far: 5000 }}>
+              <color attach="background" args={['#010407']} />
+              <ambientLight intensity={0.8} />
+              <directionalLight position={[10, 20, 10]} intensity={1.5} color="#ffffff" castShadow />
+              <Environment preset="night" />
 
-      <Canvas camera={{ position: [0, 70, 230], fov: 45, near: 0.1, far: 5000 }}>
-        <color attach="background" args={['#010407']} />
-        <ambientLight intensity={0.8} />
-        <directionalLight position={[10, 20, 10]} intensity={1.5} color="#ffffff" castShadow />
-        <Environment preset="night" />
+              <Suspense fallback={null}>
+                <group>
+                  <Stars radius={300} depth={50} count={50000} factor={8} saturation={10} fade={true} speed={2.5} />
 
-        {/* 3. ONLY SHOW CITY ONCE READY */}
-        <Suspense fallback={null}>
-          <group>
-            <Stars radius={300} depth={50} count={50000} factor={8} saturation={10} fade={true} speed={2.5} />
+                  <EffectComposer>
+                    <Bloom intensity={0.5} luminanceThreshold={0.1} mipmapBlur />
+                  </EffectComposer>
 
-            <EffectComposer>
-              <Bloom intensity={0.5} luminanceThreshold={0.1} mipmapBlur />
-            </EffectComposer>
+                  {/* Pass setSelectedPos to City to handle zooming */}
+                  <City onSelectDome={(pos) => setSelectedPos(pos)} />
 
-            <City onSelectDome={(pos) => setSelectedPos(pos)} />
+                  {/* Handles the camera animation to the dome */}
+                  <CameraWalkthrough target={selectedPos} active={Boolean(selectedPos)} />
+                </group>
+              </Suspense>
 
-            <CameraWalkthrough target={selectedPos} active={Boolean(selectedPos)} />
-          </group>
-        </Suspense>
+              <OrbitControls
+                makeDefault
+                enableDamping={true}
+                // Disable controls when zoomed in to prevent breaking the walkthrough
+                enabled={!selectedPos}
+                maxPolarAngle={Math.PI / 2.1}
+                maxDistance={1000}
+              />
+            </Canvas>
+          } />
 
-        <OrbitControls makeDefault enableDamping={true} maxPolarAngle={Math.PI / 2.1} maxDistance={1000} />
-      </Canvas>
-    </div>
+          {/* DYNAMIC SUB-PAGES */}
+          <Route path="/events" element={<PagePlaceholder name="Events" />} />
+          <Route path="/speakers" element={<PagePlaceholder name="Speakers" />} />
+          <Route path="/team" element={<PagePlaceholder name="Team" />} />
+          <Route path="/timeline" element={<PagePlaceholder name="Timeline" />} />
+          <Route path="/about" element={<PagePlaceholder name="About Us" />} />
+          <Route path="/sponsors" element={<PagePlaceholder name="Sponsors" />} />
+          <Route path="/initiative" element={<PagePlaceholder name="Initiative" />} />
+        </Routes>
+
+      </div>
+    </Router>
   )
 }

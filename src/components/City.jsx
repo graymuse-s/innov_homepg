@@ -1,9 +1,20 @@
-import { Suspense, useRef, useMemo } from "react"
-import { useGLTF, Stars, Sparkles, useTexture, Html, useProgress } from "@react-three/drei"
+import { Suspense, useRef, useMemo, useState, useEffect } from "react"
+
+import { useGLTF, useTexture, Html, useProgress, Stars, Sparkles } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import Dome from "./Dome"
+import { useNavigate } from "react-router-dom"
+import HologramIcon from "./HologramIcon";
 
+// At the very top of City.jsx or App.jsx (outside the component)
+useTexture.preload("/images/icon_0.png");
+useTexture.preload("/images/icon_1.png");
+useTexture.preload("/images/icon_2.png");
+useTexture.preload("/images/icon_3.png");
+useTexture.preload("/images/icon_4.png");
+useTexture.preload("/images/icon_5.png");
+useTexture.preload("/images/icon_6.png");
 
 
 
@@ -160,8 +171,11 @@ function MountainBorder() {
 
 
 export default function City({ onSelectDome }) {
+    // States
+    const navigate = useNavigate();
     const hexRadius = 110 // How far the domes are from center
     const localRadius = 15 // radius for models around each dome
+
 
     const getCornerPos = (i) => [
         Math.cos((i * Math.PI) / 3) * hexRadius,
@@ -169,13 +183,40 @@ export default function City({ onSelectDome }) {
         Math.sin((i * Math.PI) / 3) * hexRadius
     ]
 
+    const [rotatingDome, setRotatingDome] = useState(null);
+    const [activeDome, setActiveDome] = useState(null);
+
+    const handleDomeClick = (i, pos) => {
+        // If we are already zoomed into this dome, don't do anything
+        if (activeDome === i) return;
+
+        setActiveDome(i);
+        setRotatingDome(i);
+        onSelectDome(pos);
+    };
+    const resetView = () => {
+        onSelectDome(null);
+        setActiveDome(null);
+        setRotatingDome(null);
+        document.body.style.cursor = 'auto';
+    };
+
+
     return (
 
-        <group onPointerMissed={() => onSelectDome(null)}>
+        <group>
 
             {/* 1. THE BIG FLOOR (Added this back) */}
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]} onClick={() => onSelectDome(null)}>
-                {/* Use planeGeometry for a rectangle: [width, height] */}
+            <mesh
+                rotation={[-Math.PI / 2, 0, 0]}
+                position={[0, -0.1, 0]}
+                onClick={(e) => {
+                    // If a dome is active, clicking the floor (or through a hollow dome) resets
+                    if (activeDome !== null) {
+                        resetView();
+                    }
+                }}
+            >
                 <planeGeometry args={[500, 500]} />
                 <meshStandardMaterial color="#0a2b02" roughness={0.8} metalness={0.2} />
             </mesh>
@@ -194,23 +235,39 @@ export default function City({ onSelectDome }) {
 
             {/* 2. THE 7 DOMES (6 Corners + 1 Center) */}
             {[0, 1, 2, 3, 4, 5, 6].map((i) => {
+                const angle = (i * Math.PI) / 3; // Calculate the angle
                 const pos = i === 6 ? [0, 1, 0] : getCornerPos(i)
+                const isSelected = activeDome === i;
+                const isZoomed = activeDome !== null;
                 return (<group key={i}>
                     {/* 1. The Light: Positioned relative to the dome */}
                     <directionalLight
                         position={[pos[0] + 20, 50, pos[2] + 20]}
                         intensity={0.5}
                         color="#ffffff"
-                        castShadow
+
                         // This ensures the light points at the dome's position
                         target-position={[pos[0], 0, pos[2]]}
                     />
 
-                    {/* 2. The Dome */}
+
                     <Dome
+                        key={i}
+                        index={i}
                         position={pos}
-                        onClick={() => onSelectDome(pos)}
+                        iconPath={`/images/icon_${i}.png`}
+                        isZoomed={activeDome !== null}
+                        isSelected={activeDome === i}
+                        isRotating={rotatingDome === i}
+                        onRotationComplete={() => setRotatingDome(null)}
+                        onClick={() => handleDomeClick(i, pos)}
+                        onBack={resetView} // CRITICAL: Passing the reset function
+                        onGo={(idx) => {
+                            const pages = { 0: "/events", 1: "/speakers", 2: "/team", 3: "/timeline", 4: "/about", 5: "/sponsors", 6: "/initiative" };
+                            navigate(pages[idx]);
+                        }}
                     />
+
 
                     <Model
                         path="/models/blue_base.glb"
@@ -337,9 +394,6 @@ export default function City({ onSelectDome }) {
                     <TreeCluster position={[-30, 1, -20]} count={30} spread={12} />
 
 
-
-                    <Model path="/models/solarcar.glb" position={[-50, 5, -40]} scale={40} rotation={[0, 6.5, 0]} />
-
                     <Model path="/models/photoroom1.glb" position={[90, 2, 0]} scale={28} rotation={[0, Math.PI / 2, 0]} />
                     <Model path="/models/photoroom2.glb" position={[40, 2, -55]} scale={24} />
 
@@ -385,8 +439,6 @@ export default function City({ onSelectDome }) {
                     <group position={getCornerPos(5)}>
                         <Model path="/models/windmill.glb" position={[20, 4, -35]} scale={10} />
 
-                        <Model path="/models/solarpanels.glb" position={[-40, 10, -42]} scale={21} rotation={[Math.PI / 8, 0, 0]} />
-                        <Model path="/models/solarpanels.glb" position={[-60, 10, -42]} scale={21} rotation={[Math.PI / 8, 0, 0]} />
 
                         {/* Solar Panels tucked behind the dome */}
 
