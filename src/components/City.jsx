@@ -156,7 +156,7 @@ function MountainBorder() {
 
             {/* East Edge */}
             <Model path={mountainPath} position={[230, 15, -160]} scale={210} rotation={[0, Math.PI, 0]} />
-            <Model path={mountainPath} position={[255, 15, -15]} scale={200} rotation={[0, Math.PI, 0]} />
+            {/* <Model path={mountainPath} position={[255, 15, -15]} scale={200} rotation={[0, Math.PI, 0]} />*/}
             <Model path={mountainPath} position={[260, 15, 120]} scale={200} rotation={[0, Math.PI, 0]} />
 
             {/* West Edge */}

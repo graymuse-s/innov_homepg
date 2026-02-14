@@ -98,6 +98,20 @@ export default function Dome({
                     texturePath={iconPath}
                     isSelected={isSelected}
                 />
+                <Text
+                    position={[0, 3, 0]}       // Slightly above 0 to avoid "z-fighting" with the floor
+                    rotation={[-Math.PI / 2, 0, 0]} // Rotate -90 degrees on X to lay flat
+                    fontSize={4}                 // Adjust size as needed
+                    color="#00d4ff"              // Matching your neon blue theme
+                    // font="/fonts/your-font.woff" // Optional: path to a custom font
+
+                    anchorX="center"
+                    anchorY="middle"
+                    maxWidth={40}
+                    textAlign="center"
+                >
+                    {DOME_DATA[index]?.title?.toUpperCase()}
+                </Text>
                 {/* GLASS SHELL */}
                 <mesh
                     onPointerOver={(e) => {
@@ -125,6 +139,7 @@ export default function Dome({
                     }}
 
                 >
+
                     <sphereGeometry args={[30, 64, 64, 0, Math.PI * 2, 0, Math.PI / 2]} />
                     <meshPhysicalMaterial
                         transmission={1}
@@ -136,6 +151,7 @@ export default function Dome({
                         depthWrite={false}
                     />
                 </mesh>
+
 
                 {/* PERMANENT RIBBON (BELT) */}
                 <mesh position={[0, 2, 0]}>

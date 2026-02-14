@@ -11,7 +11,7 @@ export default function HologramIcon({ texturePath, isSelected }) {
         const time = state.clock.getElapsedTime();
         if (spriteRef.current) {
             spriteRef.current.position.y = 14.3 + Math.sin(time * 1.5) * 1.5;
-            const pulse = isSelected ? 1 : 0.4 + Math.sin(time * 4) * 0.3;
+            const pulse = isSelected ? 1 : 0.6 + Math.sin(time * 5) * 0.3;
             spriteRef.current.material.opacity = pulse;
             const s = isSelected ? 25 : 30 + Math.sin(time * 2) * 0.5;
             spriteRef.current.scale.set(s, s, 1);
