@@ -1,6 +1,7 @@
 import { Suspense, useRef, useMemo, useState, useEffect } from "react";
 import { useThree } from "@react-three/fiber";
-import { Stats } from "@react-three/drei";
+import { Instances, Instance } from "@react-three/drei"
+
 import {
   useGLTF,
   useTexture,
@@ -15,18 +16,397 @@ import Dome from "./Dome";
 import { useNavigate } from "react-router-dom";
 import HologramIcon from "./HologramIcon";
 
-// At the very top of City.jsx or App.jsx (outside the component)
-useTexture.preload("/images/icon_0.png");
-useTexture.preload("/images/icon_1.png");
-useTexture.preload("/images/icon_2.png");
-useTexture.preload("/images/icon_3.png");
-useTexture.preload("/images/icon_4.png");
-useTexture.preload("/images/icon_5.png");
-useTexture.preload("/images/icon_6.png");
+function useTreeAsset() {
+  const { nodes, materials } = useGLTF("/models/tree.glb");
 
-function Model({ path, position, scale = 1, rotation = [0, 0, 0] }) {
+  // pick first mesh found (safe generic grab)
+  const mesh = Object.values(nodes).find((n) => n.isMesh);
+
+  return {
+    geometry: mesh.geometry,
+    material:
+      mesh.material || materials[Object.keys(materials)[0]],
+  };
+}
+
+function InstancedRobos({ robos }) {
+  const { nodes } = useGLTF("/models/robo.glb");
+
+  const mesh = useMemo(() => {
+    let found;
+    Object.values(nodes).forEach((n) => {
+      if (n.isMesh && !found) found = n;
+    });
+    return found;
+  }, [nodes]);
+
+  if (!mesh) return null;
+
+  return (
+    <Instances geometry={mesh.geometry} material={mesh.material} limit={robos.length}>
+      {robos.map((r, i) => (
+        <Instance key={i} position={r.position} rotation={r.rotation} scale={r.scale} />
+      ))}
+    </Instances>
+  );
+}
+
+
+function InstancedBicycles({ bikes }) {
+  const { nodes } = useGLTF("/models/bycycle.glb");
+
+  const mesh = useMemo(() => {
+    let found;
+    Object.values(nodes).forEach((n) => {
+      if (n.isMesh && !found) found = n;
+    });
+    return found;
+  }, [nodes]);
+
+  if (!mesh) return null;
+
+  return (
+    <Instances geometry={mesh.geometry} material={mesh.material} limit={bikes.length}>
+      {bikes.map((b, i) => (
+        <Instance key={i} position={b.position} rotation={b.rotation} scale={b.scale} />
+      ))}
+    </Instances>
+  );
+}
+
+
+function InstancedSheep({ sheep }) {
+  const { nodes } = useGLTF("/models/sheep.glb");
+
+  const mesh = useMemo(() => {
+    let found;
+    Object.values(nodes).forEach((n) => {
+      if (n.isMesh && !found) found = n;
+    });
+    return found;
+  }, [nodes]);
+
+  if (!mesh) return null;
+
+  return (
+    <Instances geometry={mesh.geometry} material={mesh.material} limit={sheep.length}>
+      {sheep.map((s, i) => (
+        <Instance key={i} position={s.position} rotation={s.rotation} scale={s.scale} />
+      ))}
+    </Instances>
+  );
+}
+
+
+function InstancedGoats({ goats }) {
+  const { nodes } = useGLTF("/models/goat.glb");
+
+  const mesh = useMemo(() => {
+    let found;
+    Object.values(nodes).forEach((n) => {
+      if (n.isMesh && !found) found = n;
+    });
+    return found;
+  }, [nodes]);
+
+  if (!mesh) return null;
+
+  return (
+    <Instances geometry={mesh.geometry} material={mesh.material} limit={goats.length}>
+      {goats.map((g, i) => (
+        <Instance key={i} position={g.position} rotation={g.rotation} scale={g.scale} />
+      ))}
+    </Instances>
+  );
+}
+
+
+function InstancedCows({ cows }) {
+  const { nodes } = useGLTF("/models/Cow.glb");
+
+  const mesh = useMemo(() => {
+    let found;
+    Object.values(nodes).forEach((n) => {
+      if (n.isMesh && !found) found = n;
+    });
+    return found;
+  }, [nodes]);
+
+  if (!mesh) return null;
+
+  return (
+    <Instances
+      geometry={mesh.geometry}
+      material={mesh.material}
+      limit={cows.length}
+    >
+      {cows.map((cow, i) => (
+        <Instance
+          key={i}
+          position={cow.position}
+          rotation={cow.rotation}
+          scale={cow.scale}
+        />
+      ))}
+    </Instances>
+  );
+}
+
+
+function InstancedBuildings({ buildings }) {
+  const { nodes } = useGLTF("/models/building.glb")
+
+  const mesh = useMemo(() => {
+    let found
+    Object.values(nodes).forEach((n) => {
+      if (n.isMesh && !found) found = n
+    })
+    return found
+  }, [nodes])
+
+  if (!mesh) return null
+
+  return (
+    <Instances
+      geometry={mesh.geometry}
+      material={mesh.material}
+      limit={buildings.length}
+    >
+      {buildings.map((b, i) => (
+        <Instance
+          key={i}
+          position={b.position}
+          rotation={b.rotation}
+          scale={b.scale}
+        />
+      ))}
+    </Instances>
+  )
+}
+
+
+function InstancedSolarPanels({ panels }) {
+  const { nodes } = useGLTF("/models/solarpanels.glb")
+
+  const mesh = useMemo(() => {
+    let found
+    Object.values(nodes).forEach((n) => {
+      if (n.isMesh && !found) found = n
+    })
+    return found
+  }, [nodes])
+
+  if (!mesh) return null
+
+  return (
+    <Instances
+      geometry={mesh.geometry}
+      material={mesh.material}
+      limit={panels.length}
+    >
+      {panels.map((panel, i) => (
+        <Instance
+          key={i}
+          position={panel.position}
+          rotation={panel.rotation}
+          scale={panel.scale}
+        />
+      ))}
+    </Instances>
+  )
+}
+
+
+function InstancedCars({ cars }) {
+  const { nodes } = useGLTF("/models/car.glb");
+
+  const mesh = useMemo(() => {
+    let found;
+    Object.values(nodes).forEach((n) => {
+      if (n.isMesh && !found) found = n;
+    });
+    return found;
+  }, [nodes]);
+
+  if (!mesh) return null;
+
+  return (
+    <Instances
+      geometry={mesh.geometry}
+      material={mesh.material}
+      limit={cars.length}
+    >
+      {cars.map((car, i) => (
+        <Instance
+          key={i}
+          position={car.position}
+          rotation={car.rotation}
+          scale={car.scale}
+        />
+      ))}
+    </Instances>
+  );
+}
+
+function InstancedChickens({ chickens }) {
+  const { nodes } = useGLTF("/models/chicken.glb")
+
+  const mesh = useMemo(() => {
+    let found
+    Object.values(nodes).forEach((n) => {
+      if (n.isMesh && !found) found = n
+    })
+    return found
+  }, [nodes])
+
+  if (!mesh) return null
+
+  return (
+    <Instances
+      geometry={mesh.geometry}
+      material={mesh.material}
+      limit={chickens.length}
+    >
+      {chickens.map((chicken, i) => (
+        <Instance
+          key={i}
+          position={chicken.position}
+          rotation={chicken.rotation}
+          scale={chicken.scale}
+        />
+      ))}
+    </Instances>
+  )
+}
+
+function InstancedResBuildings({ buildings }) {
+  const { nodes } = useGLTF("/models/resbuilding.glb")
+
+  const mesh = useMemo(() => {
+    let found
+    Object.values(nodes).forEach((n) => {
+      if (n.isMesh && !found) found = n
+    })
+    return found
+  }, [nodes])
+
+  if (!mesh) return null
+
+  return (
+    <Instances
+      geometry={mesh.geometry}
+      material={mesh.material}
+      limit={buildings.length}
+    >
+      {buildings.map((b, i) => (
+        <Instance
+          key={i}
+          position={b.position}
+          rotation={b.rotation}
+          scale={b.scale}
+        />
+      ))}
+    </Instances>
+  )
+}
+
+
+function InstancedRoadTrees({ angle, radius }) {
+  const { scene } = useGLTF("/models/tree.glb");
+
+  // find first mesh inside tree glb
+  const treeMesh = useMemo(() => {
+    let mesh;
+    scene.traverse((o) => {
+      if (o.isMesh && !mesh) mesh = o;
+    });
+    return mesh;
+  }, [scene]);
+
+  const treeData = useMemo(() => {
+    const treeCount = 10;
+    const segmentLength = radius * 1.15;
+    const arr = [];
+
+    for (let i = 0; i < treeCount; i++) {
+      const zPos =
+        (i * (segmentLength / (treeCount - 1))) -
+        segmentLength / 2;
+      const rot = Math.random() * Math.PI * 2;
+
+      // outer
+      arr.push({ pos: [radius + 6, 1, zPos], rot });
+
+      // inner
+      arr.push({ pos: [radius - 6, 1, zPos], rot });
+    }
+
+    return arr;
+  }, [radius]);
+
+  if (!treeMesh) return null;
+
+  return (
+    <group rotation={[0, angle, 0]}>
+      <Instances
+        geometry={treeMesh.geometry}
+        material={treeMesh.material}
+        limit={treeData.length}
+      >
+        {treeData.map((t, i) => (
+          <Instance
+            key={i}
+            position={t.pos}
+            rotation={[0, t.rot, 0]}
+            scale={7}
+          />
+        ))}
+      </Instances>
+    </group>
+  );
+}
+
+function InstancedHorses({ horses }) {
+  const { nodes } = useGLTF("/models/Horse.glb");
+
+  const mesh = useMemo(() => {
+    let found;
+    Object.values(nodes).forEach((n) => {
+      if (n.isMesh && !found) found = n;
+    });
+    return found;
+  }, [nodes]);
+
+  if (!mesh) return null;
+
+  return (
+    <Instances
+      geometry={mesh.geometry}
+      material={mesh.material}
+      limit={horses.length}
+    >
+      {horses.map((horse, i) => (
+        <Instance
+          key={i}
+          position={horse.position}
+          rotation={horse.rotation}
+          scale={horse.scale}
+        />
+      ))}
+    </Instances>
+  );
+}
+
+
+function Model({
+  path,
+  position,
+  scale = 1,
+  rotation = [0, 0, 0],
+}) {
   const { scene } = useGLTF(path);
   const clonedScene = useMemo(() => scene.clone(), [scene]);
+
   return (
     <primitive
       object={clonedScene}
@@ -36,6 +416,36 @@ function Model({ path, position, scale = 1, rotation = [0, 0, 0] }) {
     />
   );
 }
+
+//Added
+useGLTF.preload("/models/tree.glb");
+useGLTF.preload("/models/mountain.glb");
+useGLTF.preload("/models/blue_base.glb");
+useGLTF.preload("/models/building.glb");
+useGLTF.preload("/models/resbuilding.glb");
+useGLTF.preload("/models/solarpanels.glb");
+useGLTF.preload("/models/car.glb");
+useGLTF.preload("/models/bus.glb");
+useGLTF.preload("/models/bench.glb");
+useGLTF.preload("/models/windmill.glb");
+useGLTF.preload("/models/grass.glb");
+useGLTF.preload("/models/helicopter.glb");
+useGLTF.preload("/models/helicopter_def.glb");
+useGLTF.preload("/models/hospital_2.glb");
+useGLTF.preload("/models/hospitals.glb");
+useGLTF.preload("/models/school1.glb");
+
+
+
+// At the very top of City.jsx or App.jsx (outside the component)
+useTexture.preload("/images/icon_0.png");
+useTexture.preload("/images/icon_1.png");
+useTexture.preload("/images/icon_2.png");
+useTexture.preload("/images/icon_3.png");
+useTexture.preload("/images/icon_4.png");
+useTexture.preload("/images/icon_5.png");
+useTexture.preload("/images/icon_6.png");
+
 
 function SkyLogoI({ position = [0, 140, -80], size = 700 }) {
   const texture = useTexture("/images/logo.png");
@@ -85,25 +495,11 @@ function HexPerimeterRoad({ angle, radius }) {
         <meshStandardMaterial color="#1a1a1a" />
       </mesh>
 
+        {/* Removed */}
       {/* 2. ADDING THE TREES ON BOTH SIDES */}
-      {treeData.map((tree, i) => (
-        <group key={`road-tree-${i}`} position={[radius, 0, tree.zPos]}>
-          {/* Tree on the Outer Edge */}
-          <Model
-            path="/models/tree.glb"
-            position={[6, 1, 0]}
-            scale={7}
-            rotation={[0, tree.rotation, 0]}
-          />
-          {/* Tree on the Inner Edge */}
-          <Model
-            path="/models/tree.glb"
-            position={[-6, 1, 0]}
-            scale={7}
-            rotation={[0, tree.rotation, 0]}
-          />
-        </group>
-      ))}
+
+       {/* INSTANCED TREES */}
+      <InstancedRoadTrees angle={0} radius={radius} />
 
       {/* DASHED LINES */}
       {Array.from({ length: 8 }).map((_, i) => (
@@ -119,44 +515,90 @@ function HexPerimeterRoad({ angle, radius }) {
     </group>
   );
 }
+//Removed
+// function TreeCluster({ position, count = 20, spread = 15 }) {
+//   const { nodes, materials } = useGLTF("/models/tree.glb");
+//   const meshRef = useRef();
 
-function TreeCluster({ position, count = 20, spread = 15 }) {
-  const { nodes, materials } = useGLTF("/models/tree.glb");
-  const meshRef = useRef();
+//   const dummy = new THREE.Object3D();
 
-  const dummy = new THREE.Object3D();
+//   useEffect(() => {
+//     for (let i = 0; i < count; i++) {
+//       dummy.position.set(
+//         (Math.random() - 0.5) * spread,
+//         0,
+//         (Math.random() - 0.5) * spread,
+//       );
 
-  useEffect(() => {
-    for (let i = 0; i < count; i++) {
-      dummy.position.set(
+//       const scale = 3 + Math.random() * 3;
+//       dummy.scale.set(scale, scale, scale);
+
+//       dummy.rotation.y = Math.random() * Math.PI * 2;
+
+//       dummy.updateMatrix();
+//       meshRef.current.setMatrixAt(i, dummy.matrix);
+//     }
+
+//     meshRef.current.instanceMatrix.needsUpdate = true;
+//   }, [count, spread]);
+
+//   const firstMesh = Object.values(nodes).find((n) => n.isMesh);
+
+//   return (
+//     <group position={position}>
+//       <instancedMesh
+//         ref={meshRef}
+//         args={[firstMesh.geometry, firstMesh.material, count]}
+//       />
+//     </group>
+//   );
+// }
+
+
+
+function TreeCluster({
+  position,
+  count = 20,
+  spread = 15,
+}) {
+  const { geometry, material } = useTreeAsset();
+
+  console.log("Tree instances:", count);
+
+  const treeData = useMemo(() => {
+    return Array.from({ length: count }).map(() => ({
+      pos: [
         (Math.random() - 0.5) * spread,
         0,
         (Math.random() - 0.5) * spread,
-      );
-
-      const scale = 3 + Math.random() * 3;
-      dummy.scale.set(scale, scale, scale);
-
-      dummy.rotation.y = Math.random() * Math.PI * 2;
-
-      dummy.updateMatrix();
-      meshRef.current.setMatrixAt(i, dummy.matrix);
-    }
-
-    meshRef.current.instanceMatrix.needsUpdate = true;
+      ],
+      scale: 3 + Math.random() * 3,
+      rot: Math.random() * Math.PI * 2,
+    }));
   }, [count, spread]);
-
-  const firstMesh = Object.values(nodes).find((n) => n.isMesh);
 
   return (
     <group position={position}>
-      <instancedMesh
-        ref={meshRef}
-        args={[firstMesh.geometry, firstMesh.material, count]}
-      />
+      <Instances
+        geometry={geometry}
+        material={material}
+        limit={count}
+        castShadow
+        receiveShadow
+      >
+        {treeData.map((t, i) => (
+          <Instance
+            key={i}
+            position={t.pos}
+            rotation={[0, t.rot, 0]}
+            scale={t.scale}
+          />
+        ))}
+      </Instances>
     </group>
   );
 }
+
 function MountainBorder() {
   const mountainPath = "/models/mountain.glb"; // Replace with your actual path
 
@@ -296,6 +738,166 @@ export default function City({ onSelectDome }) {
     console.log("Total Triangles:", totalTriangles);
     console.log("Total Textures (GPU):", gl.info.memory.textures);
   }, [scene]);
+
+
+  const carsData = [
+  { position: [38.5, 1, 20], rotation: [0, Math.PI / 2, 0], scale: 12 },
+  { position: [38.5, 1, 27], rotation: [0, Math.PI / 2, 0], scale: 12 },
+  { position: [25.5, 1, 27], rotation: [0, Math.PI / 2, 0], scale: 12 },
+  { position: [25.5, 1, 34], rotation: [0, Math.PI / 2, 0], scale: 12 },
+  { position: [38.5, 1, 34], rotation: [0, Math.PI / 2, 0], scale: 12 },
+]
+
+const buildingData = [
+  // First group
+  { position: [55, 5, 5], scale: 25, rotation: [0, 0, 0] },
+  { position: [55, 5, 25], scale: 25, rotation: [0, 0, 0] },
+
+  // Residential area group
+  { position: [35, 6, 50], scale: 25, rotation: [0, 0, 0] },
+  { position: [50, 6, 45], scale: 25, rotation: [0, 0, 0] },
+];
+
+const resBuildingData = [
+  // First usage
+  {
+    position: [60, 12, -25],
+    scale: 28,
+    rotation: [0, Math.PI / 2, 0],
+  },
+  {
+    position: [36, 8, -30],
+    scale: 16,
+    rotation: [0, 0, 0],
+  },
+
+  // Residential group
+  {
+    position: [20, 8, -35],
+    scale: 16,
+    rotation: [0, 0, 0],
+  },
+  {
+    position: [38.5, 8, -10],
+    scale: 16,
+    rotation: [0, Math.PI / 2, 0],
+  },
+  {
+    position: [38.5, 8, 7],
+    scale: 16,
+    rotation: [0, Math.PI / 2, 0],
+  },
+];
+
+const cowsData = [
+  { position: [-40, 1, -3], scale: 25, rotation: [0, 0.5, 0] },
+  { position: [-45, 1, -82], scale: 25, rotation: [0, 1.2, 0] },
+  { position: [-55, 1, -84], scale: 25, rotation: [0, -0.8, 0] },
+  { position: [-48, 1, -2], scale: 25, rotation: [0, 2.5, 0] },
+  { position: [-35, 1, -75], scale: 25, rotation: [0, 0, 0] },
+  { position: [-35, 1, -87], scale: 25, rotation: [0, 3.1, 0] },
+];
+
+const goatsData = [
+  { position: [-80, 2, 30], scale: 2, rotation: [0, -Math.PI / 6, 0] },
+  { position: [-80, 2, 10], scale: 2, rotation: [0, Math.PI / 6, 0] },
+];
+
+const sheepData = [
+  { position: [-40, 0, -70], scale: 2.5, rotation: [0, 0, 0] },
+  { position: [-50, 0, -70], scale: 2.5, rotation: [0, Math.PI, 0] },
+];
+
+const bicyclesData = [
+  { position: [-118, 7, 120], scale: 10, rotation: [0, Math.PI / 0.9, 0] },
+  { position: [-115, 7, 118], scale: 10, rotation: [0, Math.PI / 0.9, 0] },
+  { position: [-112, 7, 115], scale: 10, rotation: [0, Math.PI / 0.9, 0] },
+  { position: [-110, 7, 114], scale: 10, rotation: [0, Math.PI / 0.9, 0] },
+];
+
+const roboData = [
+  { position: [15, 7, 140], scale: 8, rotation: [0, -0.6, 0] },
+  { position: [77, 3, 130], scale: 7, rotation: [0, -0.6, 0] },
+];
+
+
+const chickenData = [
+  {
+    position: [-40, -0.5, -12],
+    scale: 4,
+    rotation: [0, 1.5, 0],
+  },
+  {
+    position: [-48, -0.5, -18],
+    scale: 4,
+    rotation: [0, 1.5, 0],
+  },
+  {
+    position: [-41, -0.5, -15],
+    scale: 4,
+    rotation: [0, 1.5, 0],
+  },
+  {
+    position: [-43, -0.5, -10],
+    scale: 4,
+    rotation: [0, 0.5, 0],
+  },
+  {
+    position: [-41, -0.5, -20],
+    scale: 4,
+    rotation: [0, 5.5, 0],
+  },
+  {
+    position: [-45, -0.5, -16],
+    scale: 4,
+    rotation: [0, 4.5, 0],
+  },
+  {
+    position: [-48, -0.5, -12],
+    scale: 4,
+    rotation: [0, 1.5, 0],
+  },
+]
+
+const horsesData = [
+  { position: [-30, -0.5, 40], scale: 15, rotation: [0, 1.5, 0] },
+  { position: [-25, -0.5, 25], scale: 15, rotation: [0, -1.0, 0] },
+  { position: [-14, -0.5, 35], scale: 15, rotation: [0, 0.2, 0] },
+  { position: [-29, -0.5, 35], scale: 15, rotation: [0, 2.1, 0] },
+];
+
+
+    const solarPanelData = [
+  {
+    position: [8, 8, 43],
+    scale: 12,
+    rotation: [Math.PI / 4 + 1, 11.6, 1.8],
+  },
+  {
+    position: [4, 7.9, 57],
+    scale: 12,
+    rotation: [Math.PI / 4 + 1, 11.5, 1.9],
+  },
+  {
+    position: [0, 1, -40],
+    scale: 18,
+    rotation: [Math.PI / 8, 0, 0],
+  },
+  {
+    position: [10, 9, -131],
+    scale: 8,
+    rotation: [0, Math.PI / 2, 0],
+  },
+  {
+    position: [-10, 1, -40],
+    scale: 18,
+    rotation: [Math.PI / 8, 0, 0],
+  },
+]
+
+
+
+
   const hexRadius = 110; // How far the domes are from center
   const localRadius = 15; // radius for models around each dome
 
@@ -477,19 +1079,20 @@ export default function City({ onSelectDome }) {
         {/* Main Resource Models around the dome */}
         <Model path="/models/farm.glb" position={[55, 5, 5]} scale={40} />
         <Model path="/models/lake.glb" position={[35, 0, -30]} scale={25} />
-        <Model
+        {/* <Model
           path="/models/solarpanels.glb"
           position={[-10, 1, -40]}
           scale={18}
           rotation={[Math.PI / 8, 0, 0]}
-        />
+        /> */}
       </group>
 
       <group position={getCornerPos(0)}>
-        <Model path="/models/building.glb" position={[55, 5, 5]} scale={25} />
-        <Model path="/models/building.glb" position={[55, 5, 25]} scale={25} />
+        {/* <Model path="/models/building.glb" position={[55, 5, 5]} scale={25} />
+        <Model path="/models/building.glb" position={[55, 5, 25]} scale={25} /> */}
+        <InstancedBuildings buildings={buildingData} />
 
-        <Model
+        {/* <Model
           path="/models/resbuilding.glb"
           position={[60, 12, -25]}
           scale={28}
@@ -500,7 +1103,7 @@ export default function City({ onSelectDome }) {
           path="/models/resbuilding.glb"
           position={[36, 8, -30]}
           scale={16}
-        />
+        /> */}
       </group>
 
       <Suspense fallback={null}>
@@ -545,6 +1148,14 @@ export default function City({ onSelectDome }) {
           scale={30}
           rotation={[0, Math.PI / 4, 0]}
         />
+
+        {/* <Model
+          path="/models/Defence.glb"
+          position={[-70, 6, -130]}
+          scale={30}
+          rotation={[0, Math.PI / 4, 0]}
+        /> */}
+
 
         {/* --- Medical Hub --- */}
 
@@ -638,7 +1249,7 @@ export default function City({ onSelectDome }) {
             rotation={[0, 0, 0]}
           />
 
-          <Model
+          {/* <Model
             path="/models/sheep.glb"
             position={[-40, 0, -70]}
             scale={2.5}
@@ -649,9 +1260,12 @@ export default function City({ onSelectDome }) {
             position={[-50, 0, -70]}
             scale={2.5}
             rotation={[0, Math.PI, 0]}
-          />
+          /> */}
 
-          <Model
+          <InstancedSheep sheep={sheepData} />
+
+
+          {/* <Model
             path="/models/goat.glb"
             position={[-80, 2, 30]}
             scale={2}
@@ -662,12 +1276,15 @@ export default function City({ onSelectDome }) {
             position={[-80, 2, 10]}
             scale={2}
             rotation={[0, Math.PI / 6, 0]}
-          />
+          /> */}
+          <InstancedGoats goats={goatsData} />
+
+
 
           {/* 2. TWO FARMS (Fields) */}
 
           {/* 5. CHICKENS (12 Units) - Clustered near Farmhouse 1 */}
-          <Model
+          {/* <Model
             path="/models/chicken.glb"
             position={[-40, -0.5, -12]}
             scale={4}
@@ -678,7 +1295,7 @@ export default function City({ onSelectDome }) {
             position={[-48, -0.5, -18]}
             scale={4}
             rotation={[0, 1.5, 0]}
-          />
+          /> */}
         </group>
 
         {/* --- DOME 5: THE RESOURCE & NATURE HUB --- */}
@@ -705,7 +1322,7 @@ export default function City({ onSelectDome }) {
 
         {/* residential area */}
         <group position={getCornerPos(0)}>
-          <Model
+          {/* <Model
             path="/models/building.glb"
             position={[35, 6, 50]}
             scale={25}
@@ -714,9 +1331,9 @@ export default function City({ onSelectDome }) {
             path="/models/building.glb"
             position={[50, 6, 45]}
             scale={25}
-          />
+          /> */}
 
-          <Model
+          {/* <Model
             path="/models/resbuilding.glb"
             position={[20, 8, -35]}
             scale={16}
@@ -732,8 +1349,12 @@ export default function City({ onSelectDome }) {
             position={[38.5, 8, 7]}
             scale={16}
             rotation={[0, Math.PI / 2, 0]}
-          />
-          <Model
+          /> */}
+
+          <InstancedResBuildings buildings={resBuildingData} />
+
+
+          {/* <Model
             path="/models/car.glb"
             position={[38.5, 1, 20]}
             scale={12}
@@ -744,7 +1365,9 @@ export default function City({ onSelectDome }) {
             position={[38.5, 1, 27]}
             scale={12}
             rotation={[0, Math.PI / 2, 0]}
-          />
+          /> */}
+
+            <InstancedCars cars={carsData} />
 
           {/* 2 Photo Rooms integrated into the nature zone */}
           <Model
@@ -770,7 +1393,7 @@ export default function City({ onSelectDome }) {
               scale={10}
               rotation={[Math.PI / 8, 0, 0]}
             />
-            <Model
+            {/* <Model
               path="/models/solarpanels.glb"
               position={[8, 8, 43]}
               scale={12}
@@ -781,8 +1404,12 @@ export default function City({ onSelectDome }) {
               position={[4, 7.9, 57]}
               scale={12}
               rotation={[Math.PI / 4 + 1, 11.5, 1.9]}
-            />
-            <Model
+            /> */}
+
+            <InstancedSolarPanels panels={solarPanelData} />
+
+
+            {/* <Model
               path="/models/car.glb"
               position={[25.5, 1, 27]}
               scale={12}
@@ -799,7 +1426,7 @@ export default function City({ onSelectDome }) {
               position={[38.5, 1, 34]}
               scale={12}
               rotation={[0, Math.PI / 2, 0]}
-            />
+            /> */}
           </group>
 
           <group position={getCornerPos(5)}>
@@ -811,12 +1438,12 @@ export default function City({ onSelectDome }) {
 
             {/* Solar Panels tucked behind the dome */}
 
-            <Model
+            {/* <Model
               path="/models/solarpanels.glb"
               position={[0, 1, -40]}
               scale={18}
               rotation={[Math.PI / 8, 0, 0]}
-            />
+            /> */}
             {/* 2 Photo Rooms integrated into the nature zone */}
 
             {/* Dense Tree Fill Behind Dome 5 */}
@@ -836,7 +1463,7 @@ export default function City({ onSelectDome }) {
 
           <group position={getCornerPos(3)}>
             {/* 3. COWS (6 Units) */}
-            <Model
+            {/* <Model
               path="/models/Cow.glb"
               position={[-40, 1, -3]}
               scale={25}
@@ -871,9 +1498,15 @@ export default function City({ onSelectDome }) {
               position={[-35, 1, -87]}
               scale={25}
               rotation={[0, 3.1, 0]}
-            />
+            /> */}
+
+            <InstancedCows cows={cowsData} />
+
+
+            <InstancedHorses horses={horsesData} />
+
             {/* 4. HORSES (4 Units) */}
-            <Model
+            {/* <Model
               path="/models/Horse.glb"
               position={[-30, -0.5, 40]}
               scale={15}
@@ -896,8 +1529,11 @@ export default function City({ onSelectDome }) {
               position={[-29, -0.5, 35]}
               scale={15}
               rotation={[0, 2.1, 0]}
-            />
-            <Model
+            /> */}
+
+            <InstancedChickens chickens={chickenData} />
+
+            {/* <Model
               path="/models/chicken.glb"
               position={[-41, -0.5, -15]}
               scale={4}
@@ -926,23 +1562,23 @@ export default function City({ onSelectDome }) {
               position={[-48, -0.5, -12]}
               scale={4}
               rotation={[0, 1.5, 0]}
-            />
+            /> */}
           </group>
 
           {/* --- Energy & Robotics --- */}
-          <Model
+          {/* <Model
             path="/models/solarpanels.glb"
             position={[10, 9, -131]}
             scale={8}
             rotation={[0, Math.PI / 2, 0]}
-          />
+          /> */}
           <Model
             path="/models/windmill.glb"
             position={[20, 11.8, -155]}
             scale={20}
             rotation={[0, -Math.PI / 2, 0]}
           />
-          <Model
+          {/* <Model
             path="/models/robo.glb"
             position={[15, 7, 140]}
             scale={8}
@@ -953,7 +1589,10 @@ export default function City({ onSelectDome }) {
             position={[77, 3, 130]}
             scale={7}
             rotation={[0, -0.6, 0]}
-          />
+          /> */}
+
+          <InstancedRobos robos={roboData} />
+
           <Model
             path="/models/bot.glb"
             position={[-90, 7, 100]}
@@ -983,7 +1622,7 @@ export default function City({ onSelectDome }) {
           />
 
           {/* --- Bicycles (Student Area) --- */}
-          <Model
+          {/* <Model
             path="/models/bycycle.glb"
             position={[-118, 7, 120]}
             scale={10}
@@ -1006,9 +1645,18 @@ export default function City({ onSelectDome }) {
             position={[-110, 7, 114]}
             scale={10}
             rotation={[0, Math.PI / 0.9, 0]}
-          />
+          /> */}
+          <InstancedBicycles bikes={bicyclesData} />
+
 
           <Model
+            path="/models/base_army.glb"
+            position={[-5, 8, -135]}
+            scale={50}
+            rotation={[0, Math.PI, 0]}
+          />
+            {/* Removed */}
+          {/* <Model
             path="/models/base_army.glb"
             position={[-5, 8, -135]}
             scale={50}
@@ -1027,17 +1675,9 @@ export default function City({ onSelectDome }) {
             position={[-5, 8, -135]}
             scale={50}
             rotation={[0, Math.PI, 0]}
-          />
-
-          <Model
-            path="/models/base_army.glb"
-            position={[-5, 8, -135]}
-            scale={50}
-            rotation={[0, Math.PI, 0]}
-          />
+          /> */}
         </Suspense>
       </Suspense>
-      <Stats />
     </group>
   );
 }

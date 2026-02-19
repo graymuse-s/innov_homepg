@@ -1,6 +1,7 @@
 import { Canvas } from "@react-three/fiber"
 import { useState, Suspense } from "react"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { Perf } from "r3f-perf"
 import City from "./components/City"
 import CameraWalkthrough from "./components/CameraWalkthrough"
 import { OrbitControls, Environment, Stars } from "@react-three/drei"
@@ -34,18 +35,21 @@ export default function App() {
           {/* MAIN 3D CITY ROUTE */}
           <Route path="/" element={
             <Canvas camera={{ position: [0, 70, 230], fov: 45, near: 0.1, far: 5000 }}>
+              <Perf position="top-right" />
               <color attach="background" args={['#010407']} />
               <ambientLight intensity={0.8} />
-              <directionalLight position={[10, 20, 10]} intensity={1.5} color="#ffffff" castShadow />
+              <directionalLight position={[10, 20, 10]} intensity={1.5} color="#ffffff" castShadow/>
               <Environment preset="night" />
 
               <Suspense fallback={null}>
                 <group>
-                  <Stars radius={300} depth={50} count={50000} factor={8} saturation={10} fade={true} speed={2.5} />
+                  {/* Changed */}
+                  <Stars radius={300} depth={50} count={15000} factor={8} saturation={10} fade={true} speed={2.5} />
 
-                  <EffectComposer>
+                  {/* Removed */}
+                  {/* <EffectComposer>
                     <Bloom intensity={0.5} luminanceThreshold={0.1} mipmapBlur />
-                  </EffectComposer>
+                  </EffectComposer> */}
 
                   {/* Pass setSelectedPos to City to handle zooming */}
                   <City onSelectDome={(pos) => setSelectedPos(pos)} />
