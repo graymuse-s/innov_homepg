@@ -14,8 +14,10 @@
     "@react-three/fiber": "^9.5.0",
     "@react-three/postprocessing": "^3.0.4",
     "@types/three": "^0.182.0",
+    "r3f-perf": "^7.2.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-router-dom": "^7.13.0",
     "three": "^0.182.0"
   },
   "devDependencies": {

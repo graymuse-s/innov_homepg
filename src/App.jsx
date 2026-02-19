@@ -1,66 +1,86 @@
 import { Canvas } from "@react-three/fiber"
 import { useState, Suspense } from "react"
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { Perf } from "r3f-perf"
 import City from "./components/City"
 import CameraWalkthrough from "./components/CameraWalkthrough"
-import { OrbitControls, Environment } from "@react-three/drei"
-import { Stars, Sparkles } from "@react-three/drei"
-// For the Neon Glow Effect
+import { OrbitControls, Environment, Stars } from "@react-three/drei"
 import { EffectComposer, Bloom } from "@react-three/postprocessing"
+
+// A simple placeholder for your sub-pages
+const PagePlaceholder = ({ name }) => (
+  <div style={{
+    color: 'white', background: '#000', height: '100vh',
+    display: 'flex', justifyContent: 'center', alignItems: 'center',
+    fontSize: '2rem', fontFamily: 'sans-serif'
+  }}>
+    {name.toUpperCase()} PAGE COMING SOON...
+    <button
+      onClick={() => window.location.href = "/"}
+      style={{ marginLeft: '20px', padding: '10px', cursor: 'pointer' }}
+    >
+      BACK TO CITY
+    </button>
+  </div>
+);
 
 export default function App() {
   const [selectedPos, setSelectedPos] = useState(null)
 
   return (
-    <div style={{ width: "100vw", height: "100vh", background: "#000" }}>
-      <Canvas camera={{ position: [0, 70, 230], fov: 45, near: 0.1, far: 5000 }}>
-        {/* 1. Black Background + Neon Teal Fog */}
-        <color attach="background" args={['#02403c']} />
+    <Router>
+      <div style={{ width: "100vw", height: "100vh", background: "#000", position: 'relative' }}>
 
-        <ambientLight intensity={0.8} />
-        <directionalLight position={[10, 20, 10]} intensity={1.5} color="#ffffff" castShadow />
+        <Routes>
+          {/* MAIN 3D CITY ROUTE */}
+          <Route path="/" element={
+            <Canvas camera={{ position: [0, 70, 230], fov: 45, near: 0.1, far: 5000 }}>
+              <Perf position="top-right" />
+              <color attach="background" args={['#010407']} />
+              <ambientLight intensity={0.8} />
+              <directionalLight position={[10, 20, 10]} intensity={1.5} color="#ffffff" castShadow/>
+              <Environment preset="night" />
 
-        <Environment preset="night" />
+              <Suspense fallback={null}>
+                <group>
+                  {/* Changed */}
+                  <Stars radius={300} depth={50} count={15000} factor={8} saturation={10} fade={true} speed={2.5} />
 
+                  {/* Removed */}
+                  {/* <EffectComposer>
+                    <Bloom intensity={0.5} luminanceThreshold={0.1} mipmapBlur />
+                  </EffectComposer> */}
 
-        <Suspense fallback={null}>
-          <Stars
-            radius={300}          // How far the stars are from the center
-            depth={50}            // How thick the "shell" of stars is
-            count={50000}         // Increase significantly for the dense look of img 2
-            factor={2}            // Keep factor low to keep stars tiny and sharp like img 2
-            saturation={10}       // High saturation to bring out the teal/cyan tones
-            fade={true}           // Helps create that misty, deep-space feel
-            speed={1.5}           // Subtle twinkling
-          />
+                  {/* Pass setSelectedPos to City to handle zooming */}
+                  <City onSelectDome={(pos) => setSelectedPos(pos)} />
 
+                  {/* Handles the camera animation to the dome */}
+                  <CameraWalkthrough target={selectedPos} active={Boolean(selectedPos)} />
+                </group>
+              </Suspense>
 
+              <OrbitControls
+                makeDefault
+                enableDamping={true}
+                // Disable controls when zoomed in to prevent breaking the walkthrough
+                enabled={!selectedPos}
+                maxPolarAngle={Math.PI / 2.1}
+                maxDistance={1000}
+              />
+            </Canvas>
+          } />
 
-          {/* 2. Bloom makes the Teal Sparkles and Stars "Glow" */}
-          <EffectComposer>
-            <Bloom
-              intensity={0.5}
-              luminanceThreshold={0.1}
-              mipmapBlur
-            />
-          </EffectComposer>
+          {/* DYNAMIC SUB-PAGES */}
+          <Route path="/events" element={<PagePlaceholder name="Events" />} />
+          <Route path="/speakers" element={<PagePlaceholder name="Speakers" />} />
+          <Route path="/team" element={<PagePlaceholder name="Team" />} />
+          <Route path="/timeline" element={<PagePlaceholder name="Timeline" />} />
+          <Route path="/about" element={<PagePlaceholder name="About Us" />} />
+          <Route path="/sponsors" element={<PagePlaceholder name="Sponsors" />} />
+          <Route path="/initiative" element={<PagePlaceholder name="Initiative" />} />
+        </Routes>
 
-          <City onSelectDome={(pos) => setSelectedPos(pos)} />
-
-          <CameraWalkthrough
-            target={selectedPos}
-            active={Boolean(selectedPos)}
-          />
-
-
-        </Suspense>
-
-        <OrbitControls
-          makeDefault
-          enableDamping={true}
-          maxPolarAngle={Math.PI / 2.1}
-          maxDistance={1000}
-        />
-      </Canvas>
-    </div>
+      </div>
+    </Router>
   )
 }
