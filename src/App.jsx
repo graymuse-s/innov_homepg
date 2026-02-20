@@ -5,6 +5,7 @@ import City, { CityLoaderScreen, CityLoadingBanner } from "./components/City";
 import CameraWalkthrough from "./components/CameraWalkthrough";
 import { OrbitControls, Environment, Stars, useGLTF } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
+import MobileHome from "./components/CityMobile";
 
 useGLTF.setDecoderPath(
   "https://www.gstatic.com/draco/versioned/decoders/1.5.7/",
@@ -42,6 +43,17 @@ const PagePlaceholder = ({ name }) => (
 );
 
 export default function App() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const [selectedPos, setSelectedPos] = useState(null);
 
   /**
@@ -66,88 +78,100 @@ export default function App() {
           position: "relative",
         }}
       >
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <>
-                {/* ── PHASE 1: Full-screen loader (hides itself, calls onReady) ── */}
-                <CityLoaderScreen onReady={() => setPhase("banner")} />
+        {isMobile ? (
+          <MobileHome />
+        ) : (
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <>
+                  {/* ── PHASE 1: Full-screen loader (hides itself, calls onReady) ── */}
+                  <CityLoaderScreen onReady={() => setPhase("banner")} />
 
-                {/* ── PHASE 2: Top banner "City Loading — Please Wait" (no click block) ── */}
-                {phase !== "loader" && <CityLoadingBanner done={bannerDone} />}
+                  {/* ── PHASE 2: Top banner "City Loading — Please Wait" (no click block) ── */}
+                  {phase !== "loader" && (
+                    <CityLoadingBanner done={bannerDone} />
+                  )}
 
-                <Canvas
-                  gl={{ powerPreference: "high-performance", antialias: true }}
-                  camera={{
-                    position: [0, 70, 230],
-                    fov: 45,
-                    near: 0.1,
-                    far: 5000,
-                  }}
-                >
-                  <ScenePrecompiler />
-                  <color attach="background" args={["#010407"]} />
-                  <ambientLight intensity={0.8} />
-                  <directionalLight
-                    position={[10, 20, 10]}
-                    intensity={1.5}
-                    castShadow
-                  />
-                  <Environment preset="night" />
-                  <Suspense fallback={null}>
-                    <Stars
-                      radius={300}
-                      depth={50}
-                      count={15000}
-                      factor={8}
-                      saturation={10}
-                      fade
-                      speed={2.5}
+                  <Canvas
+                    gl={{
+                      powerPreference: "high-performance",
+                      antialias: true,
+                    }}
+                    camera={{
+                      position: [0, 70, 230],
+                      fov: 45,
+                      near: 0.1,
+                      far: 5000,
+                    }}
+                  >
+                    <ScenePrecompiler />
+                    <color attach="background" args={["#010407"]} />
+                    <ambientLight intensity={0.8} />
+                    <directionalLight
+                      position={[10, 20, 10]}
+                      intensity={1.5}
+                      castShadow
                     />
-                    <City
-                      onSelectDome={(pos) => setSelectedPos(pos)}
-                      showLayers={showLayers}
-                      domsLocked={domsLocked}
-                      onAllLoaded={() => setPhase("ready")} // LoadTracker fires this → domes unlock
+                    <Environment preset="night" />
+                    <Suspense fallback={null}>
+                      <Stars
+                        radius={300}
+                        depth={50}
+                        count={15000}
+                        factor={8}
+                        saturation={10}
+                        fade
+                        speed={2.5}
+                      />
+                      <City
+                        onSelectDome={(pos) => setSelectedPos(pos)}
+                        showLayers={showLayers}
+                        domsLocked={domsLocked}
+                        onAllLoaded={() => setPhase("ready")} // LoadTracker fires this → domes unlock
+                      />
+                      <CameraWalkthrough
+                        target={selectedPos}
+                        active={Boolean(selectedPos)}
+                      />
+                    </Suspense>
+                    <OrbitControls
+                      makeDefault
+                      enableDamping
+                      enabled={!selectedPos}
+                      maxPolarAngle={Math.PI / 2.1}
+                      maxDistance={1000}
                     />
-                    <CameraWalkthrough
-                      target={selectedPos}
-                      active={Boolean(selectedPos)}
-                    />
-                  </Suspense>
-                  <OrbitControls
-                    makeDefault
-                    enableDamping
-                    enabled={!selectedPos}
-                    maxPolarAngle={Math.PI / 2.1}
-                    maxDistance={1000}
-                  />
-                </Canvas>
-              </>
-            }
-          />
+                  </Canvas>
+                </>
+              }
+            />
 
-          <Route path="/events" element={<PagePlaceholder name="Events" />} />
-          <Route
-            path="/speakers"
-            element={<PagePlaceholder name="Speakers" />}
-          />
-          <Route path="/team" element={<PagePlaceholder name="Team" />} />
-          <Route
-            path="/timeline"
-            element={<PagePlaceholder name="Timeline" />}
-          />
-          <Route path="/about" element={<PagePlaceholder name="About Us" />} />
-          <Route
-            path="/sponsors"
-            element={<PagePlaceholder name="Sponsors" />}
-          />
-          <Route
-            path="/initiative"
-            element={<PagePlaceholder name="Initiative" />}
-          />
-        </Routes>
+            <Route path="/events" element={<PagePlaceholder name="Events" />} />
+            <Route
+              path="/speakers"
+              element={<PagePlaceholder name="Speakers" />}
+            />
+            <Route path="/team" element={<PagePlaceholder name="Team" />} />
+            <Route
+              path="/timeline"
+              element={<PagePlaceholder name="Timeline" />}
+            />
+            <Route
+              path="/about"
+              element={<PagePlaceholder name="About Us" />}
+            />
+            <Route
+              path="/sponsors"
+              element={<PagePlaceholder name="Sponsors" />}
+            />
+            <Route
+              path="/initiative"
+              element={<PagePlaceholder name="Initiative" />}
+            />
+          </Routes>
+        )}
       </div>
     </Router>
   );
