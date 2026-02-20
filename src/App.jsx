@@ -1,13 +1,11 @@
 import { Canvas } from "@react-three/fiber";
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import City, { CityLoaderScreen, LayerLoadingBanner } from "./components/City";
+import City, { CityLoaderScreen, CityLoadingBanner } from "./components/City";
 import CameraWalkthrough from "./components/CameraWalkthrough";
 import { OrbitControls, Environment, Stars, useGLTF } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { useEffect } from "react";
 
-// Tell drei's GLTF loader where Draco decoder lives
 useGLTF.setDecoderPath(
   "https://www.gstatic.com/draco/versioned/decoders/1.5.7/",
 );
@@ -33,12 +31,12 @@ const PagePlaceholder = ({ name }) => (
       fontFamily: "sans-serif",
     }}
   >
-    {name.toUpperCase()} PAGE COMING SOON...
+    {name.toUpperCase()} PAGE
     <button
       onClick={() => (window.location.href = "/")}
       style={{ marginLeft: "20px", padding: "10px", cursor: "pointer" }}
     >
-      BACK TO CITY
+      ← BACK
     </button>
   </div>
 );
@@ -46,23 +44,17 @@ const PagePlaceholder = ({ name }) => (
 export default function App() {
   const [selectedPos, setSelectedPos] = useState(null);
 
-  // ── Layer state ──────────────────────────────────────────────
-  // 1 = loader screen showing (layer 1 assets loading)
-  // 2 = loader gone, layer 2 (buildings) mounting
-  // 3 = layer 2 done, layer 3 (animals/people) mounting
-  // 4 = fully loaded, domes unlocked
-  const [currentLayer, setCurrentLayer] = useState(1);
+  /**
+   * 3-phase state:
+   *   "loader"  → full-screen loader showing (Layer 1 loading)
+   *   "banner"  → loader gone, city visible, top banner showing, domes LOCKED (L2+L3 loading)
+   *   "ready"   → banner gone, domes UNLOCKED, fully interactive
+   */
+  const [phase, setPhase] = useState("loader");
 
-  // Called by CityLoaderScreen when progress hits 100% and it fades out
-  const handleLoaderDone = () => {
-    setCurrentLayer(2); // trigger layer 2 to mount
-  };
-
-  // Called by Layer2Scene and Layer3Scene when they finish mounting
-  const handleLayerComplete = (completedLayer) => {
-    if (completedLayer === 2) setCurrentLayer(3); // start layer 3
-    if (completedLayer === 3) setCurrentLayer(4); // unlock domes!
-  };
+  const domsLocked = phase !== "ready"; // locked in "loader" and "banner"
+  const showLayers = phase !== "loader"; // L2+L3 mount once loader hides
+  const bannerDone = phase === "ready"; // tells banner to fade out
 
   return (
     <Router>
@@ -79,11 +71,11 @@ export default function App() {
             path="/"
             element={
               <>
-                {/* ── LAYER 1: Full-screen loader (DOM) ── */}
-                <CityLoaderScreen onReady={handleLoaderDone} />
+                {/* ── PHASE 1: Full-screen loader (hides itself, calls onReady) ── */}
+                <CityLoaderScreen onReady={() => setPhase("banner")} />
 
-                {/* ── LAYERS 2 & 3: Bottom banner while details load ── */}
-                <LayerLoadingBanner layer={currentLayer} />
+                {/* ── PHASE 2: Top banner "City Loading — Please Wait" (no click block) ── */}
+                {phase !== "loader" && <CityLoadingBanner done={bannerDone} />}
 
                 <Canvas
                   gl={{ powerPreference: "high-performance", antialias: true }}
@@ -100,34 +92,29 @@ export default function App() {
                   <directionalLight
                     position={[10, 20, 10]}
                     intensity={1.5}
-                    color="#ffffff"
                     castShadow
                   />
                   <Environment preset="night" />
                   <Suspense fallback={null}>
-                    <group>
-                      <Stars
-                        radius={300}
-                        depth={50}
-                        count={15000}
-                        factor={8}
-                        saturation={10}
-                        fade
-                        speed={2.5}
-                      />
-
-                      {/* City receives currentLayer to control what renders */}
-                      <City
-                        onSelectDome={(pos) => setSelectedPos(pos)}
-                        currentLayer={currentLayer}
-                        onLayerComplete={handleLayerComplete}
-                      />
-
-                      <CameraWalkthrough
-                        target={selectedPos}
-                        active={Boolean(selectedPos)}
-                      />
-                    </group>
+                    <Stars
+                      radius={300}
+                      depth={50}
+                      count={15000}
+                      factor={8}
+                      saturation={10}
+                      fade
+                      speed={2.5}
+                    />
+                    <City
+                      onSelectDome={(pos) => setSelectedPos(pos)}
+                      showLayers={showLayers}
+                      domsLocked={domsLocked}
+                      onAllLoaded={() => setPhase("ready")} // LoadTracker fires this → domes unlock
+                    />
+                    <CameraWalkthrough
+                      target={selectedPos}
+                      active={Boolean(selectedPos)}
+                    />
                   </Suspense>
                   <OrbitControls
                     makeDefault

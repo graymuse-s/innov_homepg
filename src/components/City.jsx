@@ -1,55 +1,59 @@
-import { Suspense, useMemo, useState, useEffect, useCallback } from "react";
+import {
+  Suspense,
+  useMemo,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react";
 import { useThree } from "@react-three/fiber";
-import { Instances, Instance, useProgress, Html } from "@react-three/drei";
+import { Instances, Instance, useProgress } from "@react-three/drei";
 import { useGLTF, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { SkeletonUtils } from "three-stdlib";
 import Dome from "./Dome";
 import { useNavigate } from "react-router-dom";
 
-// ─────────────────────────────────────────────
-// LAYER SYSTEM
-//
-// Layer 1 — Critical (loader screen shown):
-//            ground, roads, mountains, trees, blue bases, domes
-//
-// Layer 2 — Structural (city visible, domes LOCKED):
-//            buildings, hospitals, schools, farms, lakes, photorooms
-//
-// Layer 3 — Detail (domes still LOCKED):
-//            animals, vehicles, people, small props
-//
-// Layer 4 — DONE: domes UNLOCKED, user can interact
-// ─────────────────────────────────────────────
-
-// ─────────────────────────────────────────────
-// LOADER SCREEN (DOM overlay — Layer 1)
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+//  PHASE 1 — FULL-SCREEN LOADER
+//  Shown while the first layer of assets loads.
+//  Calls onReady() when progress >= 100 OR after 15 s max.
+//  City canvas is rendering behind it but hidden by the black bg.
+// ─────────────────────────────────────────────────────────────
 export function CityLoaderScreen({ onReady }) {
   const { progress, loaded, total } = useProgress();
+  const [pct, setPct] = useState(0);
   const [fadeOut, setFadeOut] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const doneRef = useRef(false);
 
+  // Keep displayed % always moving forward
   useEffect(() => {
-    if (progress >= 100) {
-      const t = setTimeout(() => setFadeOut(true), 600);
-      return () => clearTimeout(t);
-    }
+    setPct((p) => Math.max(p, Math.round(progress)));
   }, [progress]);
 
-  useEffect(() => {
-    if (!fadeOut) return;
-    const t = setTimeout(() => {
+  const hide = useCallback(() => {
+    if (doneRef.current) return;
+    doneRef.current = true;
+    setFadeOut(true);
+    setTimeout(() => {
       setHidden(true);
       onReady?.();
     }, 800);
+  }, [onReady]);
+
+  useEffect(() => {
+    if (progress >= 100) hide();
+  }, [progress, hide]);
+  // Hard cap — never stuck beyond 15 s
+  useEffect(() => {
+    const t = setTimeout(hide, 15000);
     return () => clearTimeout(t);
-  }, [fadeOut, onReady]);
+  }, [hide]);
 
   if (hidden) return null;
 
-  const pct = Math.round(progress);
-  const filledBars = Math.floor((pct / 100) * 20);
+  const bars = Math.floor((pct / 100) * 20);
 
   return (
     <div
@@ -68,45 +72,39 @@ export function CityLoaderScreen({ onReady }) {
         pointerEvents: fadeOut ? "none" : "all",
       }}
     >
-      {/* Grid bg */}
+      {/* Grid */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          backgroundImage: `linear-gradient(rgba(0,255,80,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,80,0.04) 1px, transparent 1px)`,
+          pointerEvents: "none",
+          backgroundImage:
+            "linear-gradient(rgba(0,255,80,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,80,0.04) 1px,transparent 1px)",
           backgroundSize: "40px 40px",
-          animation: "gridPulse 4s ease-in-out infinite",
+          animation: "lsGridPulse 4s ease-in-out infinite",
         }}
       />
-      {/* Orb */}
+      {/* Glow orb */}
       <div
         style={{
           position: "absolute",
           width: 600,
           height: 600,
           borderRadius: "50%",
+          pointerEvents: "none",
           background:
-            "radial-gradient(circle, rgba(0,255,80,0.06) 0%, transparent 70%)",
-          animation: "orbPulse 3s ease-in-out infinite",
+            "radial-gradient(circle,rgba(0,255,80,0.06) 0%,transparent 70%)",
+          animation: "lsOrbPulse 3s ease-in-out infinite",
         }}
       />
 
       {/* Hex spinner */}
-      <div
-        style={{
-          position: "relative",
-          marginBottom: 48,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 16,
-        }}
-      >
+      <div style={{ position: "relative", marginBottom: 44 }}>
         <svg
           width="120"
           height="120"
           viewBox="0 0 120 120"
-          style={{ animation: "spinSlow 6s linear infinite" }}
+          style={{ animation: "lsSpin 6s linear infinite", display: "block" }}
         >
           <polygon
             points="60,8 104,34 104,86 60,112 16,86 16,34"
@@ -118,18 +116,20 @@ export function CityLoaderScreen({ onReady }) {
           <polygon
             points="60,20 94,39 94,81 60,100 26,81 26,39"
             fill="none"
-            stroke="rgba(0,255,80,0.25)"
+            stroke="rgba(0,255,80,0.22)"
             strokeWidth="1"
           />
         </svg>
         <div
           style={{
             position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             fontSize: 36,
-            filter: "drop-shadow(0 0 12px rgba(0,255,80,0.8))",
+            filter: "drop-shadow(0 0 14px rgba(0,255,80,0.9))",
+            animation: "lsIconPulse 2s ease-in-out infinite",
           }}
         >
           🏙️
@@ -138,8 +138,8 @@ export function CityLoaderScreen({ onReady }) {
 
       <div
         style={{
-          fontFamily: "'Courier New', monospace",
-          fontSize: 13,
+          fontFamily: "'Courier New',monospace",
+          fontSize: 12,
           letterSpacing: "0.5em",
           color: "rgba(0,255,80,0.5)",
           textTransform: "uppercase",
@@ -150,13 +150,13 @@ export function CityLoaderScreen({ onReady }) {
       </div>
       <div
         style={{
-          fontFamily: "'Courier New', monospace",
-          fontSize: 28,
+          fontFamily: "'Courier New',monospace",
+          fontSize: 26,
           fontWeight: 700,
-          letterSpacing: "0.15em",
+          letterSpacing: "0.18em",
           color: "#00ff50",
           textShadow: "0 0 20px rgba(0,255,80,0.7)",
-          marginBottom: 48,
+          marginBottom: 44,
           textTransform: "uppercase",
         }}
       >
@@ -164,18 +164,19 @@ export function CityLoaderScreen({ onReady }) {
       </div>
 
       {/* Progress bars */}
-      <div style={{ display: "flex", gap: 3, marginBottom: 20 }}>
+      <div style={{ display: "flex", gap: 3, marginBottom: 18 }}>
         {Array.from({ length: 20 }, (_, i) => (
           <div
             key={i}
             style={{
               width: 14,
               height: 28,
+              borderRadius: 2,
               background:
-                i < filledBars ? "rgba(0,255,80,0.9)" : "rgba(0,255,80,0.08)",
-              border: "1px solid rgba(0,255,80,0.2)",
-              transition: "background 0.3s ease",
-              boxShadow: i < filledBars ? "0 0 8px rgba(0,255,80,0.6)" : "none",
+                i < bars ? "rgba(0,255,80,0.9)" : "rgba(0,255,80,0.07)",
+              border: "1px solid rgba(0,255,80,0.18)",
+              transition: "background 0.25s ease",
+              boxShadow: i < bars ? "0 0 8px rgba(0,255,80,0.55)" : "none",
             }}
           />
         ))}
@@ -183,173 +184,216 @@ export function CityLoaderScreen({ onReady }) {
 
       <div
         style={{
-          fontFamily: "'Courier New', monospace",
-          fontSize: 42,
+          fontFamily: "'Courier New',monospace",
+          fontSize: 40,
           fontWeight: 700,
           color: "#00ff50",
-          textShadow: "0 0 30px rgba(0,255,80,0.8)",
+          textShadow: "0 0 28px rgba(0,255,80,0.8)",
           lineHeight: 1,
-          marginBottom: 12,
+          marginBottom: 10,
         }}
       >
         {pct}
-        <span style={{ fontSize: 18, color: "rgba(0,255,80,0.6)" }}>%</span>
+        <span style={{ fontSize: 17, color: "rgba(0,255,80,0.55)" }}>%</span>
       </div>
       <div
         style={{
-          fontFamily: "'Courier New', monospace",
-          fontSize: 11,
-          color: "rgba(0,255,80,0.4)",
-          letterSpacing: "0.2em",
+          fontFamily: "'Courier New',monospace",
+          fontSize: 10,
+          color: "rgba(0,255,80,0.38)",
+          letterSpacing: "0.22em",
+          marginBottom: 28,
         }}
       >
         {loaded} / {total} ASSETS
       </div>
-      <StatusTicker progress={pct} />
+      <LoaderTicker progress={pct} />
 
       <style>{`
-        @keyframes gridPulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
-        @keyframes orbPulse { 0%,100%{transform:scale(1);opacity:0.5} 50%{transform:scale(1.15);opacity:1} }
-        @keyframes spinSlow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        @keyframes tickerFade { 0%{opacity:0;transform:translateY(8px)} 15%{opacity:1;transform:translateY(0)} 85%{opacity:1} 100%{opacity:0} }
-        @keyframes domePulse { 0%,100%{opacity:0.4;transform:scale(1)} 50%{opacity:0.9;transform:scale(1.08)} }
+        @keyframes lsGridPulse  { 0%,100%{opacity:.6} 50%{opacity:1} }
+        @keyframes lsOrbPulse   { 0%,100%{transform:scale(1);opacity:.5} 50%{transform:scale(1.13);opacity:1} }
+        @keyframes lsSpin       { to{transform:rotate(360deg)} }
+        @keyframes lsIconPulse  { 0%,100%{transform:scale(1)} 50%{transform:scale(1.07)} }
+        @keyframes lsTicker     { 0%{opacity:0;transform:translateY(6px)} 15%{opacity:1;transform:translateY(0)} 85%{opacity:1} 100%{opacity:0} }
+        @keyframes bannerDot    { 0%,80%,100%{transform:scaleY(.35)} 40%{transform:scaleY(1)} }
       `}</style>
     </div>
   );
 }
 
-function StatusTicker({ progress }) {
-  const messages = [
-    "Compiling shaders...",
-    "Loading terrain geometry...",
-    "Placing buildings...",
-    "Spawning vehicles...",
-    "Generating tree instances...",
-    "Initializing domes...",
-    "Baking lighting...",
-    "Preparing animals...",
-    "Assembling roads...",
-    "Calibrating cameras...",
-    "Finalizing scene...",
-    "Almost there...",
+function LoaderTicker({ progress }) {
+  const msgs = [
+    "Compiling shaders…",
+    "Loading terrain…",
+    "Placing mountains…",
+    "Growing trees…",
+    "Laying roads…",
+    "Initializing domes…",
+    "Baking lighting…",
+    "Almost there…",
   ];
-  const idx = Math.floor((progress / 100) * messages.length);
-  const msg = messages[Math.min(idx, messages.length - 1)];
+  const msg =
+    msgs[Math.min(Math.floor((progress / 100) * msgs.length), msgs.length - 1)];
   return (
     <div
       style={{
-        marginTop: 28,
-        fontFamily: "'Courier New', monospace",
-        fontSize: 11,
+        fontFamily: "'Courier New',monospace",
+        fontSize: 10,
         color: "rgba(0,255,80,0.5)",
-        letterSpacing: "0.15em",
-        height: 20,
+        letterSpacing: "0.18em",
+        height: 18,
         overflow: "hidden",
       }}
     >
       <span
         key={msg}
-        style={{ display: "block", animation: "tickerFade 2s ease forwards" }}
+        style={{ display: "block", animation: "lsTicker 2.2s ease forwards" }}
       >
-        &gt; {msg}
+        ▸ {msg.toUpperCase()}
       </span>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────
-// LAYER BANNER — bottom bar shown during layers 2 & 3
-// ─────────────────────────────────────────────
-export function LayerLoadingBanner({ layer }) {
-  const [visible, setVisible] = useState(true);
+// ─────────────────────────────────────────────────────────────
+//  PHASE 2 — TOP BANNER
+//  Shown after the loader hides while Layer 2 & 3 are streaming.
+//  pointerEvents: "none" — never blocks clicks on the canvas.
+//  The dome-click block comes from domsLocked prop in City.
+//  Banner disappears when parent sets done=true.
+// ─────────────────────────────────────────────────────────────
+export function CityLoadingBanner({ done }) {
+  const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
-    if (layer >= 4) {
-      const t = setTimeout(() => setVisible(false), 600);
+    if (done) {
+      const t = setTimeout(() => setHidden(true), 900);
       return () => clearTimeout(t);
-    } else {
-      setVisible(true);
     }
-  }, [layer]);
+  }, [done]);
 
-  if (!visible || layer < 2) return null;
-
-  const msg =
-    layer === 2
-      ? "🏗️  Building city structures..."
-      : layer === 3
-        ? "🐄  Adding animals & details..."
-        : null;
-
-  if (!msg) return null;
+  if (hidden) return null;
 
   return (
     <div
       style={{
         position: "fixed",
-        bottom: 28,
-        left: "50%",
-        transform: "translateX(-50%)",
-        zIndex: 1000,
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 8000,
+        pointerEvents: "none", // ← NEVER blocks canvas clicks
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
-        gap: 10,
-        background: "rgba(0,0,0,0.8)",
-        border: "1px solid rgba(0,255,80,0.25)",
-        borderRadius: 8,
-        padding: "10px 22px",
-        fontFamily: "'Courier New', monospace",
-        color: "rgba(0,255,80,0.8)",
-        fontSize: 11,
-        letterSpacing: "0.15em",
-        backdropFilter: "blur(8px)",
-        transition: "opacity 0.5s ease",
+        transition: "opacity 0.7s ease",
+        opacity: done ? 0 : 1,
+      }}
+    >
+      {/* Main banner strip */}
+      <div
+        style={{
+          width: "100%",
+          background:
+            "linear-gradient(to bottom, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.7) 70%, transparent 100%)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          paddingTop: 14,
+          paddingBottom: 18,
+          gap: 8,
+        }}
+      >
+        {/* Bouncing dots + text */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              style={{
+                width: 5,
+                height: 16,
+                borderRadius: 3,
+                background: "#00ff50",
+                boxShadow: "0 0 7px #00ff50",
+                animation: `bannerDot 1.1s ease-in-out ${i * 0.14}s infinite`,
+              }}
+            />
+          ))}
+          <span
+            style={{
+              fontFamily: "'Courier New',monospace",
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: "0.35em",
+              color: "#00ff50",
+              textShadow: "0 0 12px rgba(0,255,80,0.7)",
+              textTransform: "uppercase",
+            }}
+          >
+            City Loading — Please Wait
+          </span>
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              style={{
+                width: 5,
+                height: 16,
+                borderRadius: 3,
+                background: "#00ff50",
+                boxShadow: "0 0 7px #00ff50",
+                animation: `bannerDot 1.1s ease-in-out ${i * 0.14}s infinite`,
+              }}
+            />
+          ))}
+        </div>
+        {/* Sub-line */}
+        <div
+          style={{
+            fontFamily: "'Courier New',monospace",
+            fontSize: 9,
+            letterSpacing: "0.28em",
+            color: "rgba(0,255,80,0.5)",
+            textTransform: "uppercase",
+          }}
+        >
+          Domes will unlock when the city finishes loading
+        </div>
+      </div>
+
+      {/* Thin green progress bar along very top edge */}
+      <ProgressBar />
+    </div>
+  );
+}
+
+function ProgressBar() {
+  const { progress } = useProgress();
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 3,
+        background: "rgba(0,255,80,0.1)",
       }}
     >
       <div
         style={{
-          width: 7,
-          height: 7,
-          borderRadius: "50%",
-          background: "#00ff50",
-          boxShadow: "0 0 8px #00ff50",
-          animation: "domePulse 1.2s ease-in-out infinite",
+          height: "100%",
+          width: `${Math.round(progress)}%`,
+          background: "linear-gradient(to right, rgba(0,255,80,0.4), #00ff50)",
+          boxShadow: "0 0 10px rgba(0,255,80,0.8)",
+          transition: "width 0.5s ease",
         }}
       />
-      {msg.toUpperCase()} &nbsp;— DOMES UNLOCK SOON
     </div>
   );
 }
 
 // ─────────────────────────────────────────────
-// DOME LOCK INDICATOR (3D HTML label above each dome)
-// ─────────────────────────────────────────────
-function DomeLockLabel() {
-  return (
-    <Html center distanceFactor={120}>
-      <div
-        style={{
-          background: "rgba(0,0,0,0.65)",
-          border: "1px solid rgba(0,255,80,0.35)",
-          borderRadius: 5,
-          padding: "3px 9px",
-          fontFamily: "'Courier New', monospace",
-          fontSize: 9,
-          color: "rgba(0,255,80,0.75)",
-          letterSpacing: "0.12em",
-          whiteSpace: "nowrap",
-          pointerEvents: "none",
-          animation: "domePulse 1.4s ease-in-out infinite",
-        }}
-      >
-        ⏳ LOADING
-      </div>
-    </Html>
-  );
-}
-
-// ─────────────────────────────────────────────
-// SHARED HOOK
+// SHARED TREE HOOK
 // ─────────────────────────────────────────────
 function useTreeAsset() {
   const { nodes, materials } = useGLTF("/models/tree.glb");
@@ -472,12 +516,12 @@ function InstancedCows({ cows }) {
       material={mesh.material}
       limit={cows.length}
     >
-      {cows.map((cow, i) => (
+      {cows.map((c, i) => (
         <Instance
           key={i}
-          position={cow.position}
-          rotation={cow.rotation}
-          scale={cow.scale}
+          position={c.position}
+          rotation={c.rotation}
+          scale={c.scale}
         />
       ))}
     </Instances>
@@ -520,12 +564,12 @@ function InstancedSolarPanels({ panels }) {
       material={mesh.material}
       limit={panels.length}
     >
-      {panels.map((panel, i) => (
+      {panels.map((p, i) => (
         <Instance
           key={i}
-          position={panel.position}
-          rotation={panel.rotation}
-          scale={panel.scale}
+          position={p.position}
+          rotation={p.rotation}
+          scale={p.scale}
         />
       ))}
     </Instances>
@@ -544,12 +588,12 @@ function InstancedCars({ cars }) {
       material={mesh.material}
       limit={cars.length}
     >
-      {cars.map((car, i) => (
+      {cars.map((c, i) => (
         <Instance
           key={i}
-          position={car.position}
-          rotation={car.rotation}
-          scale={car.scale}
+          position={c.position}
+          rotation={c.rotation}
+          scale={c.scale}
         />
       ))}
     </Instances>
@@ -568,12 +612,12 @@ function InstancedChickens({ chickens }) {
       material={mesh.material}
       limit={chickens.length}
     >
-      {chickens.map((chicken, i) => (
+      {chickens.map((c, i) => (
         <Instance
           key={i}
-          position={chicken.position}
-          rotation={chicken.rotation}
-          scale={chicken.scale}
+          position={c.position}
+          rotation={c.rotation}
+          scale={c.scale}
         />
       ))}
     </Instances>
@@ -616,12 +660,12 @@ function InstancedHorses({ horses }) {
       material={mesh.material}
       limit={horses.length}
     >
-      {horses.map((horse, i) => (
+      {horses.map((h, i) => (
         <Instance
           key={i}
-          position={horse.position}
-          rotation={horse.rotation}
-          scale={horse.scale}
+          position={h.position}
+          rotation={h.rotation}
+          scale={h.scale}
         />
       ))}
     </Instances>
@@ -808,28 +852,27 @@ function AllRoadTrees({ radius }) {
   const allTrees = useMemo(() => {
     const trees = [];
     const treeCount = 10;
-    const segmentLength = radius * 1.15;
+    const segLen = radius * 1.15;
     for (let seg = 0; seg < 6; seg++) {
-      const angle = (seg * Math.PI) / 3 + Math.PI / 6;
-      const cosA = Math.cos(angle);
-      const sinA = Math.sin(angle);
+      const angle = (seg * Math.PI) / 3 + Math.PI / 6,
+        cosA = Math.cos(angle),
+        sinA = Math.sin(angle);
       for (let i = 0; i < treeCount; i++) {
-        const zLocal =
-          i * (segmentLength / (treeCount - 1)) - segmentLength / 2;
-        const rot = Math.random() * Math.PI * 2;
+        const z = i * (segLen / (treeCount - 1)) - segLen / 2,
+          rot = Math.random() * Math.PI * 2;
         trees.push({
           pos: [
-            cosA * (radius + 6) - sinA * zLocal,
+            cosA * (radius + 6) - sinA * z,
             1,
-            sinA * (radius + 6) + cosA * zLocal,
+            sinA * (radius + 6) + cosA * z,
           ],
           rot,
         });
         trees.push({
           pos: [
-            cosA * (radius - 6) - sinA * zLocal,
+            cosA * (radius - 6) - sinA * z,
             1,
-            sinA * (radius - 6) + cosA * zLocal,
+            sinA * (radius - 6) + cosA * z,
           ],
           rot,
         });
@@ -890,8 +933,8 @@ function SkyLogoI({ position = [0, 140, -80], size = 700 }) {
 }
 
 // ─────────────────────────────────────────────
-// LAYER 1 PRELOADS — these are tracked by useProgress
-// Keep this list small so loader screen disappears fast
+// PRELOADS — Layer 1 only (tracked by loader screen)
+// Layer 2 & 3 load on-demand after loader hides
 // ─────────────────────────────────────────────
 useGLTF.preload("/models/tree.glb");
 useGLTF.preload("/models/mountain.glb");
@@ -909,24 +952,16 @@ useTexture.preload("/images/icon_5.png");
 useTexture.preload("/images/icon_6.png");
 
 // ─────────────────────────────────────────────
-// LAYER 2 SCENE — structural buildings (mounts after loader hides)
+// LAYER 2 — mounts after loader hides
 // ─────────────────────────────────────────────
 function Layer2Scene({
   getCornerPos,
   buildingData,
   resBuildingData,
   solarPanelData,
-  onLoaded,
 }) {
-  useEffect(() => {
-    // Signal done after a short delay so React finishes mounting
-    const t = setTimeout(onLoaded, 500);
-    return () => clearTimeout(t);
-  }, []);
-
-  const cp5 = getCornerPos(5);
-  const cp3 = getCornerPos(3);
-
+  const cp5 = getCornerPos(5),
+    cp3 = getCornerPos(3);
   return (
     <>
       <Suspense fallback={null}>
@@ -1058,7 +1093,7 @@ function Layer2Scene({
 }
 
 // ─────────────────────────────────────────────
-// LAYER 3 SCENE — animals, vehicles, people (mounts after layer 2)
+// LAYER 3 — mounts after loader hides
 // ─────────────────────────────────────────────
 function Layer3Scene({
   getCornerPos,
@@ -1070,13 +1105,7 @@ function Layer3Scene({
   carsData,
   roboData,
   bicyclesData,
-  onLoaded,
 }) {
-  useEffect(() => {
-    const t = setTimeout(onLoaded, 500);
-    return () => clearTimeout(t);
-  }, []);
-
   return (
     <>
       <Suspense fallback={null}>
@@ -1288,15 +1317,52 @@ function Layer3Scene({
   );
 }
 
+// ─────────────────────────────────────────────────────────────
+//  TRACKER — sits inside Canvas, watches useProgress.active
+//  Calls onDone() the moment active hits 0 after layers mount.
+// ─────────────────────────────────────────────────────────────
+function LoadTracker({ enabled, onDone }) {
+  const { active } = useProgress();
+  const firedRef = useRef(false);
+
+  useEffect(() => {
+    if (!enabled) return;
+    if (active === 0 && !firedRef.current) {
+      firedRef.current = true;
+      // Small grace: let GPU finish uploading last textures
+      const t = setTimeout(onDone, 600);
+      return () => clearTimeout(t);
+    }
+  }, [enabled, active, onDone]);
+
+  // Hard fallback — unlock after 45 s no matter what
+  useEffect(() => {
+    if (!enabled) return;
+    const t = setTimeout(() => {
+      if (!firedRef.current) {
+        firedRef.current = true;
+        onDone();
+      }
+    }, 45000);
+    return () => clearTimeout(t);
+  }, [enabled, onDone]);
+
+  return null;
+}
+
 // ─────────────────────────────────────────────
 // MAIN CITY COMPONENT
-// currentLayer prop drives what is shown:
-//   1 = only layer1 (loader screen up)
-//   2 = layer1 + layer2 loading (domes locked)
-//   3 = layer1 + layer2 + layer3 loading (domes locked)
-//   4 = all done, domes UNLOCKED
+// Props:
+//   onSelectDome  — called with dome world-pos (or null)
+//   showLayers    — true after loader screen hides → mounts L2+L3
+//   domsLocked    — true while city is still loading → blocks dome clicks
 // ─────────────────────────────────────────────
-export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
+export default function City({
+  onSelectDome,
+  showLayers,
+  domsLocked,
+  onAllLoaded,
+}) {
   const navigate = useNavigate();
   const { scene, gl, camera } = useThree();
   const hexRadius = 110;
@@ -1310,9 +1376,7 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
     [],
   );
 
-  const domsLocked = currentLayer < 4;
-
-  // ── Data arrays (memoised so they don't recreate on re-render) ──
+  // ── Data ──
   const mountainData = useMemo(
     () => [
       { position: [150, 0, -245], scale: 280, rotation: [0, 0, 0] },
@@ -1345,7 +1409,6 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
     ],
     [],
   );
-
   const buildingData = useMemo(
     () => [
       { position: [55, 5, 5], scale: 25, rotation: [0, 0, 0] },
@@ -1355,7 +1418,6 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
     ],
     [],
   );
-
   const resBuildingData = useMemo(
     () => [
       { position: [60, 12, -25], scale: 28, rotation: [0, Math.PI / 2, 0] },
@@ -1366,7 +1428,6 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
     ],
     [],
   );
-
   const cowsData = useMemo(
     () => [
       { position: [-40, 1, -3], scale: 25, rotation: [0, 0.5, 0] },
@@ -1378,7 +1439,6 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
     ],
     [],
   );
-
   const goatsData = useMemo(
     () => [
       { position: [-80, 2, 30], scale: 2, rotation: [0, -Math.PI / 6, 0] },
@@ -1386,7 +1446,6 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
     ],
     [],
   );
-
   const sheepData = useMemo(
     () => [
       { position: [-40, 0, -70], scale: 2.5, rotation: [0, 0, 0] },
@@ -1394,7 +1453,6 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
     ],
     [],
   );
-
   const bicyclesData = useMemo(
     () => [
       { position: [-118, 7, 120], scale: 10, rotation: [0, Math.PI / 0.9, 0] },
@@ -1404,7 +1462,6 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
     ],
     [],
   );
-
   const roboData = useMemo(
     () => [
       { position: [15, 7, 140], scale: 8, rotation: [0, -0.6, 0] },
@@ -1412,7 +1469,6 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
     ],
     [],
   );
-
   const chickenData = useMemo(
     () => [
       { position: [-40, -0.5, -12], scale: 4, rotation: [0, 1.5, 0] },
@@ -1425,7 +1481,6 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
     ],
     [],
   );
-
   const horsesData = useMemo(
     () => [
       { position: [-30, -0.5, 40], scale: 15, rotation: [0, 1.5, 0] },
@@ -1435,7 +1490,6 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
     ],
     [],
   );
-
   const solarPanelData = useMemo(
     () => [
       {
@@ -1454,7 +1508,6 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
     ],
     [],
   );
-
   const blueBasesData = useMemo(
     () =>
       [0, 1, 2, 3, 4, 5, 6].map((i) => ({
@@ -1464,7 +1517,6 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
       })),
     [getCornerPos],
   );
-
   const windmillsData = useMemo(
     () => [
       { position: [20, 4, -35], scale: 10, rotation: [0, 0, 0] },
@@ -1472,10 +1524,8 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
     ],
     [],
   );
-
   const cp3 = useMemo(() => getCornerPos(3), [getCornerPos]);
   const cp5 = useMemo(() => getCornerPos(5), [getCornerPos]);
-
   const cropsData = useMemo(
     () => [
       {
@@ -1491,7 +1541,6 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
     ],
     [cp3],
   );
-
   const farmsData = useMemo(
     () => [
       {
@@ -1507,7 +1556,6 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
     ],
     [cp5],
   );
-
   const cabinsData = useMemo(
     () => [
       {
@@ -1523,7 +1571,6 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
     ],
     [cp3],
   );
-
   const treeClusters = useMemo(
     () => [
       { position: [55 + cp5[0], 1, 55 + cp5[2]], count: 20, spread: 12 },
@@ -1537,13 +1584,12 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
   const [activeDome, setActiveDome] = useState(null);
 
   const handleDomeClick = (i, pos) => {
-    if (domsLocked) return;
+    if (domsLocked) return; // ← locked while banner is showing
     if (activeDome === i) return;
     setActiveDome(i);
     setRotatingDome(i);
     onSelectDome(pos);
   };
-
   const resetView = () => {
     onSelectDome(null);
     setActiveDome(null);
@@ -1556,6 +1602,8 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
     return () => cancelAnimationFrame(id);
   }, [scene, gl, camera]);
 
+  const handleAllLoaded = useCallback(() => onAllLoaded?.(), [onAllLoaded]);
+
   return (
     <group>
       <ambientLight intensity={0.6} />
@@ -1565,7 +1613,6 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
         color="#ffffff"
       />
 
-      {/* Floor */}
       <mesh
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, -0.1, 0]}
@@ -1577,7 +1624,7 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
         <meshStandardMaterial color="#0a2b02" roughness={0.8} metalness={0.2} />
       </mesh>
 
-      {/* Layer 1 — always rendered */}
+      {/* ── Layer 1 ── */}
       <InstancedMountains mountains={mountainData} />
       {[0, 1, 2, 3, 4, 5].map((i) => (
         <HexPerimeterRoad
@@ -1595,7 +1642,7 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
       <InstancedCabins cabins={cabinsData} />
       <SkyLogoI position={[0, -200, -2200]} size={90} />
 
-      {/* 7 Domes — locked until layer 4 */}
+      {/* ── Domes ── */}
       {[0, 1, 2, 3, 4, 5, 6].map((i) => {
         const pos = i === 6 ? [0, 1, 0] : getCornerPos(i);
         return (
@@ -1623,37 +1670,33 @@ export default function City({ onSelectDome, currentLayer, onLayerComplete }) {
                 navigate(pages[idx]);
               }}
             />
-            {/* ⏳ Lock label shown on each dome while not yet unlocked */}
-            {domsLocked && <DomeLockLabel />}
           </group>
         );
       })}
 
-      {/* Layer 2 — mounts when currentLayer >= 2 */}
-      {currentLayer >= 2 && (
-        <Layer2Scene
-          getCornerPos={getCornerPos}
-          buildingData={buildingData}
-          resBuildingData={resBuildingData}
-          solarPanelData={solarPanelData}
-          onLoaded={() => onLayerComplete(2)}
-        />
-      )}
-
-      {/* Layer 3 — mounts when currentLayer >= 3 */}
-      {currentLayer >= 3 && (
-        <Layer3Scene
-          getCornerPos={getCornerPos}
-          cowsData={cowsData}
-          horsesData={horsesData}
-          sheepData={sheepData}
-          goatsData={goatsData}
-          chickenData={chickenData}
-          carsData={carsData}
-          roboData={roboData}
-          bicyclesData={bicyclesData}
-          onLoaded={() => onLayerComplete(3)}
-        />
+      {/* ── Layers 2 & 3 — mount after loader hides, load behind banner ── */}
+      {showLayers && (
+        <>
+          <Layer2Scene
+            getCornerPos={getCornerPos}
+            buildingData={buildingData}
+            resBuildingData={resBuildingData}
+            solarPanelData={solarPanelData}
+          />
+          <Layer3Scene
+            getCornerPos={getCornerPos}
+            cowsData={cowsData}
+            horsesData={horsesData}
+            sheepData={sheepData}
+            goatsData={goatsData}
+            chickenData={chickenData}
+            carsData={carsData}
+            roboData={roboData}
+            bicyclesData={bicyclesData}
+          />
+          {/* Watches active — calls onAllLoaded when every GLTF is done */}
+          <LoadTracker enabled={showLayers} onDone={handleAllLoaded} />
+        </>
       )}
     </group>
   );
