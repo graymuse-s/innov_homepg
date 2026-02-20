@@ -100,7 +100,7 @@ export default function Dome({
                 />
                 <Text
                     position={[0, 3, 0]}       // Slightly above 0 to avoid "z-fighting" with the floor
-                    rotation={[-Math.PI / 2, 0, 0]} // Rotate -90 degrees on X to lay flat
+                    rotation={[-Math.PI / 2, 0, Math.PI]} // Rotate -90 degrees on X to lay flat
                     fontSize={4}                 // Adjust size as needed
                     color="#00d4ff"              // Matching your neon blue theme
                     // font="/fonts/your-font.woff" // Optional: path to a custom font
