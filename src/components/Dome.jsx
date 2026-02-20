@@ -27,6 +27,7 @@ export default function Dome({
     onGo
 }) {
     const meshRef = useRef();
+    const textRef = useRef();
     const signpostRef = useRef();
     const [targetRotation, setTargetRotation] = useState(0);
 
@@ -57,19 +58,32 @@ export default function Dome({
         return texture;
     }, [index]);
 
-    // 2. ANIMATION & BILLBOARDING LOGIC
+    // --- UPDATED ANIMATION LOGIC ---
     useFrame((state, delta) => {
-        // Handle the 360-degree spin animation
+        // A. Handle 360-degree spin
         if (isRotating && meshRef.current) {
             if (meshRef.current.rotation.y < targetRotation) {
-                meshRef.current.rotation.y += delta * 6; // Speed of spin
+                meshRef.current.rotation.y += delta * 6;
             } else {
                 meshRef.current.rotation.y = targetRotation;
-                onRotationComplete(); // Tells parent rotation is done
+                onRotationComplete();
             }
         }
 
-        // Billboarding: Make the signpost face the camera for readability
+        // B. Handle Text Position and Rotation
+        if (textRef.current) {
+            if (isSelected && !isRotating) {
+                // SELECTED VIEW: Center position and face camera
+                textRef.current.position.set(0, 5, 0);
+                textRef.current.lookAt(state.camera.position);
+            } else {
+                // MAIN VIEW or WHILE ROTATING: Offset position and flat/static
+                textRef.current.position.set(0, 5, -12);
+                textRef.current.rotation.set(-Math.PI / 2 + 5, 0, Math.PI);
+            }
+        }
+
+        // C. Signpost Billboarding
         if (isSelected && signpostRef.current) {
             signpostRef.current.lookAt(state.camera.position);
         }
@@ -98,6 +112,22 @@ export default function Dome({
                     texturePath={iconPath}
                     isSelected={isSelected}
                 />
+                <Text
+                    ref={textRef}
+                    position={[0, 4, -12]}       // Slightly above 0 to avoid "z-fighting" with the floor
+                    //rotation={[-Math.PI / 2 + 5, 0, Math.PI / 2]} // Rotate -90 degrees on X to lay flat
+                    fontSize={4}                 // Adjust size as needed
+                    color="#00d4ff"              // Matching your neon blue theme
+                    font="/fonts/Orbitron-Bold.ttf" // Optional: path to a custom font
+
+                    anchorX="center"
+                    anchorY="middle"
+                    maxWidth={40}
+                    textAlign="center"
+                >
+                    {DOME_DATA[index]?.title?.toUpperCase()}
+                </Text>
+
                 {/* GLASS SHELL */}
                 <mesh
                     onPointerOver={(e) => {
